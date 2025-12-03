@@ -193,24 +193,32 @@ def temporarily_merge_secrets(settings_path: str, secrets_path: str, ignore: boo
         print("Restored original data/user_settings.json without secrets after build.")
 
 
-def run(cmd: List[str], cwd: Optional[str] = None, env: Optional[str] = None) -> None:
-    """Run command with optional environment variable."""
+def run(cmd: List[str], cwd: Optional[str] = None, env: Optional[str] = None, firmware_version: Optional[str] = None) -> None:
+    """Run command with optional environment variables."""
     print(f"> {' '.join(cmd)} (cwd={cwd or os.getcwd()})")
 
     # Set up environment for subprocess
     env_dict = os.environ.copy()
     if env:
         env_dict['CHIP_FAMILY'] = env
+    if firmware_version:
+        env_dict['FIRMWARE_VERSION'] = firmware_version
 
     subprocess.run(cmd, cwd=cwd, check=True, env=env_dict)
 
 
-def run_with_chip_family(cmd: List[str], board_env: str, cwd: Optional[str] = None) -> None:
+def run_with_chip_family(cmd: List[str], board_env: str, cwd: Optional[str] = None, repo_root: Optional[str] = None) -> None:
     """
-    Run a command with CHIP_FAMILY environment variable set based on board configuration.
+    Run a command with CHIP_FAMILY and FIRMWARE_VERSION environment variables set based on board configuration.
     """
     chip_family = get_chip_family_for_board(board_env)
-    run(cmd, cwd=cwd, env=chip_family)
+    
+    # Get firmware version if repo_root is provided
+    firmware_version = None
+    if repo_root:
+        firmware_version = get_version_string(repo_root)
+    
+    run(cmd, cwd=cwd, env=chip_family, firmware_version=firmware_version)
 
 
 def ensure_executable(name: str) -> None:
@@ -537,36 +545,22 @@ def build_firmware(repo_root: str, board_env: str, ignore_secrets: bool, version
     current_version = get_version_string(repo_root)
     update_versioning_metadata(repo_root, current_version)
 
+    # Create build info files BEFORE firmware build so they exist when merge_bin.py runs
+    # These files persist in data/ (gitignored) for use in OTA updates and merged firmware
+    print(f"\n=== Creating Build Metadata ===")
+    create_build_timestamp(data_dir)
+    create_build_version(data_dir, repo_root)
+
     print(f"\n=== Building Firmware for {board_env} ===")
     print(f"Chip family: {get_chip_family_for_board(board_env)}")
 
-    # Build firmware
+    # Build firmware - merge_bin.py pre-action will rebuild LittleFS with version files included
     build_cmd = [pio_cmd, "run", "-e", board_env]
-    run_with_chip_family(build_cmd, board_env, cwd=repo_root)
-
-    # Build filesystem with timestamp and version info
-    print(f"\n=== Building Filesystem ===")
-
-    # Create build info files before filesystem build
-    timestamp_path = None
-    version_path = None
-
-    try:
-        with temporarily_merge_secrets(settings_path, secrets_path, ignore_secrets):
-            timestamp_path = create_build_timestamp(data_dir)
-            version_path = create_build_version(data_dir, repo_root)
-            fs_cmd = [pio_cmd, "run", "-e", board_env, "-t", "buildfs"]
-            with temporarily_hide_files(secret_file_paths):
-                run_with_chip_family(fs_cmd, board_env, cwd=repo_root)
-    finally:
-        # Clean up temporary files
-        if timestamp_path and os.path.exists(timestamp_path):
-            os.remove(timestamp_path)
-        if version_path and os.path.exists(version_path):
-            os.remove(version_path)
+    run_with_chip_family(build_cmd, board_env, cwd=repo_root, repo_root=repo_root)
 
     print(f"\n=== Build Complete ===")
     print(f"Firmware and filesystem built successfully for {board_env}")
+    print(f"Version files persist in data/ for OTA updates")
 
 
 def main() -> None:

@@ -1,6 +1,7 @@
 #include "JamDetector.h"
 #include "Logger.h"
 #include "SettingsManager.h"
+#include "FilamentMotionSensor.h" // Include full definition here
 
 // Global singletons (provided elsewhere)
 
@@ -29,7 +30,6 @@ namespace
     // We do not let dt explode; caps keep rates reasonably stable
     constexpr unsigned long MAX_EVAL_INTERVAL_MS        = 1000;
     constexpr unsigned long DEFAULT_EVAL_INTERVAL_MS    = 1000;
-    constexpr bool          USE_WINDOWED_RATE_SAMPLES   = true;
 }
 
 JamDetector::JamDetector()
@@ -50,6 +50,8 @@ void JamDetector::reset(unsigned long currentTimeMs)
     state.deficit              = 0.0f;
     state.expectedRateMmPerSec = 0.0f;
     state.actualRateMmPerSec   = 0.0f;
+    state.qualityScore         = 1.0f;
+    state.flowDerivative       = 0.0f;
     state.graceState           = GraceState::IDLE;
     state.graceActive          = false;
 
@@ -261,16 +263,13 @@ bool JamDetector::evaluateSoftJam(float         expectedDistance,
     return (softJamAccumulatedMs >= config.softJamTimeMs);
 }
 
-JamState JamDetector::update(float         expectedDistance,
-                             float         actualDistance,
+JamState JamDetector::update(const FilamentMotionSensor& sensor,
                              unsigned long movementPulseCount,
                              bool          isPrinting,
                              bool          hasTelemetry,
                              unsigned long currentTimeMs,
                              unsigned long printStartTimeMs,
-                             const JamConfig& config,
-                             float         windowedExpectedRateMmPerSec,
-                             float         windowedActualRateMmPerSec)
+                             const JamConfig& config)
 {
     // If not printing or no telemetry, reset to idle-ish state
     if (!isPrinting || !hasTelemetry)
@@ -287,10 +286,10 @@ JamState JamDetector::update(float         expectedDistance,
         }
 
         lastEvalMs               = currentTimeMs;
-        prevExpectedDistance     = expectedDistance;
-        prevActualDistance       = actualDistance;
         state.expectedRateMmPerSec = 0.0f;
         state.actualRateMmPerSec   = 0.0f;
+        state.qualityScore         = 1.0f;
+        state.flowDerivative       = 0.0f;
         wasInGrace               = false;
         return state;
     }
@@ -315,57 +314,25 @@ JamState JamDetector::update(float         expectedDistance,
     }
     lastEvalMs = currentTimeMs;
 
-    float expectedRate = 0.0f;
-    float actualRate   = 0.0f;
-
-    if constexpr (!USE_WINDOWED_RATE_SAMPLES)
-    {
-        // First derivative: compute rates from windowed distances
-        float dtSec = static_cast<float>(elapsedMs) / 1000.0f;
-        float dExp  = expectedDistance - prevExpectedDistance;
-        float dAct  = actualDistance   - prevActualDistance;
-
-        // Handle retractions / window resets: treat negative deltas as zero flow
-        if (dExp < 0.0f) dExp = 0.0f;
-        if (dAct < 0.0f) dAct = 0.0f;
-
-        expectedRate = (dtSec > 0.0f) ? (dExp / dtSec) : 0.0f;  // mm/s
-        actualRate   = (dtSec > 0.0f) ? (dAct / dtSec) : 0.0f;  // mm/s
-
-        prevExpectedDistance = expectedDistance;
-        prevActualDistance   = actualDistance;
-    }
-    else
-    {
-        expectedRate        = windowedExpectedRateMmPerSec;
-        actualRate          = windowedActualRateMmPerSec;
-        prevExpectedDistance = expectedDistance;
-        prevActualDistance   = actualDistance;
-    }
+    // Extract metrics from the unified flow model
+    const FilamentFlowModel& model = sensor.getFlowModel();
+    
+    float expectedRate = model.getExpectedFlowRate();
+    float actualRate   = model.getActualFlowRate();
+    float expectedDistance = model.getExpectedDistance();
+    float actualDistance   = model.getActualDistance();
+    float passRatio        = model.getFlowRatio();
+    float deficit          = model.getDeficit();
+    float qualityScore     = model.getQualityScore();
+    float derivative       = model.getActualFlowDerivative();
 
     // Expose rates for callers / logging
     state.expectedRateMmPerSec = expectedRate;
     state.actualRateMmPerSec   = actualRate;
-
-    // Rate-based pass ratio
-    float passRatio;
-    if (expectedRate > MIN_RATE_FOR_RATIO_MM_S)
-    {
-        // expectedRate is guaranteed > 0 here
-        passRatio = actualRate / expectedRate;
-    }
-    else
-    {
-        // When flow is tiny, treat as OK to avoid noise on drip moves
-        passRatio = 1.0f;
-    }
-
-    if (passRatio < 0.0f) passRatio = 0.0f;
-    if (passRatio > 1.5f) passRatio = 1.5f;
-
-    // Distance-based deficit (still useful for UI + soft jam gating)
-    float deficit = expectedDistance - actualDistance;
-    if (deficit < 0.0f) deficit = 0.0f;
+    state.passRatio            = passRatio;
+    state.deficit              = deficit;
+    state.qualityScore         = qualityScore;
+    state.flowDerivative       = derivative;
 
     // For UI: smooth a deficit ratio (distance-based) so the graph is not jumpy
     float deficitRatioValue =
@@ -373,10 +340,6 @@ JamState JamDetector::update(float         expectedDistance,
     smoothedDeficitRatio =
         RATIO_SMOOTHING_ALPHA * deficitRatioValue +
         (1.0f - RATIO_SMOOTHING_ALPHA) * smoothedDeficitRatio;
-
-    // Update state metrics exposed externally
-    state.passRatio = passRatio;   // rate-based
-    state.deficit   = deficit;     // windowed (distance-based)
 
     // Initialize grace state at print start if needed
     if (state.graceState == GraceState::IDLE)
@@ -464,14 +427,16 @@ JamState JamDetector::update(float         expectedDistance,
         logger.logf(
             "Filament jam detected (%s)! "
             "win_exp=%.2f win_sns=%.2f deficit=%.2f "
-            "rate_exp=%.3f rate_sns=%.3f pass=%.2f",
+            "rate_exp=%.3f rate_sns=%.3f pass=%.2f qual=%.2f deriv=%.2f",
             jamType,
             expectedDistance,
             actualDistance,
             deficit,
             expectedRate,
             actualRate,
-            passRatio);
+            passRatio,
+            qualityScore,
+            derivative);
     }
     else if (!state.jammed && wasJammed && !jamPauseRequested)
     {

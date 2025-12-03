@@ -243,6 +243,9 @@ class ElegooCC
     printer_info_t getCurrentInformation();
 
     bool discoverPrinterIP(String &outIp, unsigned long timeoutMs = 3000);
+
+    // Diagnostic snapshot for remote debugging
+    String getDiagnosticSnapshot(const char* fwVersion, const char* chipFamily);
 };
 
 // Convenience macro for easier access
