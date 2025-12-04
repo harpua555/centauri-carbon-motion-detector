@@ -6,7 +6,9 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <AsyncEventSource.h>
+#ifdef ENABLE_ELEGANT_OTA
 #include <ElegantOTA.h>
+#endif
 #include <LittleFS.h>
 
 #include "SettingsManager.h"

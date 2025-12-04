@@ -79,8 +79,9 @@ bool isRestPrintStatus(sdcp_print_status_t status)
 
 ElegooCC::ElegooCC()
 {
-    lastChangeTime    = 0;
-    startedAt = 0;  // Initialize to prevent invalid grace periods    lastChangeTime    = 0;
+    lastChangeTime     = 0;
+    startedAt          = 0;  // Initialize to prevent invalid grace periods
+    requestIdCounter   = 0;  // Simple counter for SDCP request IDs
 
     mainboardID       = "";
     printStatus       = SDCP_PRINT_STATUS_IDLE;
@@ -643,9 +644,13 @@ void ElegooCC::sendCommand(int command, bool waitForAck)
         return;
     }
 
-    uuid.generate();
-    String uuidStr = String(uuid.toCharArray());
-    uuidStr.replace("-", "");  // RequestID doesn't want dashes
+    // Generate a simple unique request ID (millis + counter)
+    // SDCP only needs unique IDs, not RFC-compliant UUIDs
+    requestIdCounter++;
+    char requestIdBuf[17];
+    snprintf(requestIdBuf, sizeof(requestIdBuf), "%08lx%08lx",
+             (unsigned long)millis(), (unsigned long)requestIdCounter);
+    String uuidStr = String(requestIdBuf);
 
     // Get current timestamp
     unsigned long timestamp = getTime();

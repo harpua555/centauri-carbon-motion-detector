@@ -7,8 +7,6 @@
 
 #include "FilamentMotionSensor.h"
 #include "JamDetector.h"
-//#include "JamDetector_iface.h"
-#include "UUID.h"
 
 #define CARBON_CENTAURI_PORT 3030
 
@@ -124,7 +122,7 @@ class ElegooCC
     };
 
     TransportState        transport;
-    UUID                  uuid;
+    uint32_t              requestIdCounter;
     StaticJsonDocument<1200> messageDoc;
     // Variables to track movement sensor state
     int           lastMovementValue;  // Initialize to invalid value

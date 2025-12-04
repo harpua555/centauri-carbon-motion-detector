@@ -232,8 +232,10 @@ void WebServer::begin()
                   request->send(200, "application/json", jsonResponse);
               });
 
+#ifdef ENABLE_ELEGANT_OTA
     // Setup ElegantOTA
     ElegantOTA.begin(&server);
+#endif
 
     statusEvents.onConnect([](AsyncEventSourceClient *client) {
         client->send("connected", "init", millis(), 1000);
@@ -356,7 +358,9 @@ void WebServer::begin()
 
 void WebServer::loop()
 {
+#ifdef ENABLE_ELEGANT_OTA
     ElegantOTA.loop();
+#endif
     unsigned long now = millis();
     if (statusEvents.count() > 0 && now - lastStatusBroadcastMs >= statusBroadcastIntervalMs)
     {
