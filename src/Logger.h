@@ -76,6 +76,9 @@ class Logger
     String getLogsAsText(int maxEntries);
     void   clearLogs();
     int    getLogCount();
+    
+    // Get the most recent log entry as JSON for SSE streaming
+    String getLatestLogAsJson();
 };
 
 // Convenience macro for easier access

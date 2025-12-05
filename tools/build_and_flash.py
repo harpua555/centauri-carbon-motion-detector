@@ -359,8 +359,12 @@ def main() -> None:
     if increment_type:
         increment_version(repo_root, increment_type)
 
-    timestamp_path: Optional[str] = None
-    version_path: Optional[str] = None
+    # Create build info files BEFORE any build so they exist when merge_bin.py runs
+    # These files persist in data/ (gitignored) for use in OTA updates and merged firmware
+    print("\n=== Creating Build Metadata ===")
+    create_build_timestamp(data_dir)
+    create_build_version(data_dir, repo_root)
+
     try:
         # Build mode: nofs = firmware only (no merge)
         if args.build_mode == "nofs":
@@ -376,8 +380,6 @@ def main() -> None:
         elif args.build_mode == "nobin":
             print("\n=== Build Mode: Filesystem Only (no merge) ===")
             with temporarily_merge_secrets(settings_path, secrets_path, args.ignore_secrets):
-                timestamp_path = create_build_timestamp(data_dir)
-                version_path = create_build_version(data_dir, repo_root)
                 fs_target = "uploadfs" if not args.local else "buildfs"
                 with temporarily_hide_files(secret_file_paths):
                     run_with_chip_family([pio_cmd, "run", "-e", args.env, "-t", fs_target], args.env, cwd=repo_root)
@@ -391,10 +393,6 @@ def main() -> None:
         else:
             print("\n=== Build Mode: Full Build (with merge) ===")
             with temporarily_merge_secrets(settings_path, secrets_path, args.ignore_secrets):
-                # Create filesystem build timestamp and version before building filesystem
-                timestamp_path = create_build_timestamp(data_dir)
-                version_path = create_build_version(data_dir, repo_root)
-
                 # Filesystem upload/build (uses merged settings if present)
                 fs_target = "uploadfs" if not args.local else "buildfs"
                 with temporarily_hide_files(secret_file_paths):
@@ -403,18 +401,15 @@ def main() -> None:
                 if args.local:
                     run_with_chip_family([pio_cmd, "run", "-e", args.env], args.env, cwd=repo_root)
                     print("\nAll done. Build artifacts are ready in `data/` and `.pio/build`.")
+                    print("Version files persist in data/ for OTA updates")
                 else:
                     # Firmware upload (will build firmware first if needed)
                     run_with_chip_family([pio_cmd, "run", "-e", args.env, "-t", "upload"], args.env, cwd=repo_root)
                     print("\nAll done. Firmware and filesystem have been flashed.")
+                    print("Version files persist in data/ for OTA updates")
     except FileNotFoundError as exc:
         print(f"ERROR: {exc}")
         sys.exit(1)
-    finally:
-        if timestamp_path and os.path.exists(timestamp_path):
-            os.remove(timestamp_path)
-        if version_path and os.path.exists(version_path):
-            os.remove(version_path)
 
 
 if __name__ == "__main__":

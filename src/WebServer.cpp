@@ -328,6 +328,16 @@ void WebServer::begin()
                   request->send(200, "application/json", jsonResponse);
               });
 
+    // Diagnostic snapshot endpoint (comprehensive system state for remote debugging)
+    server.on("/api/diagnostic_snapshot", HTTP_GET,
+              [](AsyncWebServerRequest *request)
+              {
+                  extern const char* firmwareVersion;
+                  extern const char* chipFamily;
+                  String snapshot = elegooCC.getDiagnosticSnapshot(firmwareVersion, chipFamily);
+                  request->send(200, "application/json", snapshot);
+              });
+
     // Serve lightweight UI from /lite (if available)
     // Keep explicit /lite path for backwards compatibility
     server.serveStatic(kRouteLiteRoot, SPIFFS, "/lite/").setDefaultFile("index.htm");
@@ -446,6 +456,23 @@ void WebServer::broadcastStatusUpdate()
     }
 
     statusEvents.send(payload.c_str(), "status");
+    
+    // Broadcast latest log entry if new (for browser-side unlimited storage)
+    if (logger.getLogCount() > 0)
+    {
+        String latestLog = logger.getLatestLogAsJson();
+        // Parse to get UUID for deduplication
+        DynamicJsonDocument logDoc(256);
+        deserializeJson(logDoc, latestLog);
+        const char* logUuid = logDoc["uuid"];
+        
+        // Only broadcast if it's a new log
+        if (logUuid && lastLogUUID != logUuid)
+        {
+            lastLogUUID = logUuid;
+            statusEvents.send(latestLog.c_str(), "log");
+        }
+    }
 
     bool isPrinting = elegooStatus.printStatus != 0 && elegooStatus.printStatus != 9;
     statusBroadcastIntervalMs = isPrinting ? 1000 : 5000;

@@ -25,9 +25,14 @@ Logger::Logger()
     {
         logCapacity = FALLBACK_LOG_ENTRIES;
         logBuffer   = new (std::nothrow) LogEntry[logCapacity];
-        if (!logBuffer)
+        if (logBuffer)
+        {
+            Serial.println("WARNING: Logger using fallback capacity (128 entries, reduced from 250)");
+        }
+        else
         {
             logCapacity = 0;
+            Serial.println("CRITICAL: Logger failed to allocate buffer!");
         }
     }
 
@@ -297,3 +302,30 @@ int Logger::getLogCount()
 {
     return totalEntries;
 }
+
+String Logger::getLatestLogAsJson()
+{
+    // Return the most recent log entry as JSON for SSE streaming to browser
+    if (totalEntries == 0 || !logBuffer)
+    {
+        return "{}";  // Empty object if no logs
+    }
+    
+    // Get the most recent entry (currentIndex - 1, wrapping around)
+    int latestIdx = (currentIndex - 1 + logCapacity) % logCapacity;
+    const LogEntry& entry = logBuffer[latestIdx];
+    
+    // Build minimal JSON (~150 bytes typical)
+    StaticJsonDocument<256> doc;
+    doc["uuid"] = entry.uuid;
+    doc["timestamp"] = entry.timestamp;
+    doc["message"] = entry.message;
+    doc["level"] = (int)entry.level;
+    
+    String output;
+    output.reserve(256);
+    serializeJson(doc, output);
+    
+    return output;
+}
+

@@ -23,6 +23,7 @@ class WebServer
     unsigned long lastStatusBroadcastMs = 0;
     unsigned long statusBroadcastIntervalMs = 5000;
     String lastIdlePayload;
+    String lastLogUUID;  // Track last broadcasted log to avoid duplicates
 
     void buildStatusJson(DynamicJsonDocument &jsonDoc, const printer_info_t &elegooStatus);
     void broadcastStatusUpdate();

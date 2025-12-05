@@ -30,6 +30,7 @@ unsigned long _mockMillis = 0;
 unsigned long millis() { return _mockMillis; }
 
 // Include actual sensor code
+#include "../src/FilamentFlowModel.cpp"
 #include "../src/FilamentMotionSensor.h"
 #include "../src/FilamentMotionSensor.cpp"
 
