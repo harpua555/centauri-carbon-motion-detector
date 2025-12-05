@@ -6,6 +6,8 @@
 
 #include <Arduino.h>
 
+class FilamentMotionSensor; // Forward declaration
+
 // Grace period states for jam detection
 enum class GraceState : uint8_t
 {
@@ -36,6 +38,8 @@ struct JamState
     float      deficit;              // Current deficit in mm (windowed)
     float      expectedRateMmPerSec; // Derived expected flow rate (mm/s)
     float      actualRateMmPerSec;   // Derived sensor flow rate (mm/s)
+    float      qualityScore;         // Signal quality score (0-1)
+    float      flowDerivative;       // Acceleration (mm/s^2)
     GraceState graceState;           // Current grace period state
     bool       graceActive;          // True if any grace is active
 };
@@ -81,8 +85,7 @@ public:
 
     /**
      * Update jam detection state.
-     * @param expectedDistance    Windowed expected distance (mm).
-     * @param actualDistance      Windowed actual distance (mm).
+     * @param sensor              Reference to the motion sensor (for flow metrics).
      * @param movementPulseCount  Total pulse count.
      * @param isPrinting          True if printer is actively printing.
      * @param hasTelemetry        True if SDCP telemetry is fresh.
@@ -91,16 +94,13 @@ public:
      * @param config              Jam detection configuration.
      * @return JamState with current detection status.
      */
-    JamState update(float              expectedDistance,
-                    float              actualDistance,
+    JamState update(const FilamentMotionSensor& sensor,
                     unsigned long      movementPulseCount,
                     bool               isPrinting,
                     bool               hasTelemetry,
                     unsigned long      currentTimeMs,
                     unsigned long      printStartTimeMs,
-                    const JamConfig&   config,
-                    float              expectedRateMmPerSec,
-                    float              actualRateMmPerSec);
+                    const JamConfig&   config);
 
     /**
      * Get current state.

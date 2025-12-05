@@ -3,6 +3,7 @@
 #include <ArduinoJson.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
+#include <LittleFS.h>
 
 #include "FilamentMotionSensor.h"
 #include "Logger.h"
@@ -167,8 +168,9 @@ void ElegooCC::webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
             break;
         case WStype_TEXT:
         {
-            messageDoc.clear();
-            DeserializationError error = deserializeJson(messageDoc, payload, length);
+            // Use local document to avoid concurrency with sendCommand() in main loop
+            StaticJsonDocument<1200> callbackDoc;
+            DeserializationError error = deserializeJson(callbackDoc, payload, length);
 
             if (error)
             {
@@ -177,14 +179,14 @@ void ElegooCC::webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
             }
 
             // Check if this is a command acknowledgment response
-            if (messageDoc.containsKey("Id") && messageDoc.containsKey("Data"))
+            if (callbackDoc.containsKey("Id") && callbackDoc.containsKey("Data"))
             {
-                handleCommandResponse(messageDoc);
+                handleCommandResponse(callbackDoc);
             }
             // Check if this is a status response
-            else if (messageDoc.containsKey("Status"))
+            else if (callbackDoc.containsKey("Status"))
             {
-                handleStatus(messageDoc);
+                handleStatus(callbackDoc);
             }
         }
         break;
@@ -1092,11 +1094,11 @@ void ElegooCC::checkFilamentMovement(unsigned long currentTime)
         lastJamDetectorUpdateMs = currentTime;
         
         // Update jam detector and get current state
+        // Update jam detector and get current state
         cachedJamState = jamDetector.update(
-            expectedDistance, actualDistance, movementPulseCount,
+            motionSensor, movementPulseCount,
             currentlyPrinting, expectedTelemetryAvailable,
-            currentTime, startedAt, jamConfig,
-            windowedExpectedRate, windowedActualRate
+            currentTime, startedAt, jamConfig
         );
         
         // Update filament stopped state (unless latched by pause/tracking freeze)
@@ -1331,4 +1333,108 @@ bool ElegooCC::discoverPrinterIP(String &outIp, unsigned long timeoutMs)
 
     udp.stop();
     return false;
+}
+
+String ElegooCC::getDiagnosticSnapshot(const char* fwVersion, const char* chipFamily)
+{
+    // Allocate JSON document for diagnostic snapshot (~1800 bytes typical)
+    DynamicJsonDocument doc(2048);
+    
+    // Snapshot metadata
+    JsonObject snapshot = doc["snapshot"].to<JsonObject>();
+    snapshot["timestamp"] = getTime();
+    snapshot["version"] = "1.0";
+    snapshot["fw_version"] = fwVersion;
+    snapshot["chip_family"] = chipFamily;
+    snapshot["uptime_ms"] = millis();
+    
+    // System state
+    JsonObject system = doc["system"].to<JsonObject>();
+    JsonObject heap = system["heap"].to<JsonObject>();
+    heap["free"] = ESP.getFreeHeap();
+    heap["min_free"] = ESP.getMinFreeHeap();
+    heap["max_alloc"] = ESP.getMaxAllocHeap();
+    float fragmentation = 100.0f - (ESP.getMaxAllocHeap() * 100.0f / ESP.getFreeHeap());
+    heap["fragmentation_pct"] = fragmentation;
+    
+    JsonObject wifi = system["wifi"].to<JsonObject>();
+    wifi["connected"] = WiFi.status() == WL_CONNECTED;
+    wifi["ssid"] = settingsManager.getSSID();
+    wifi["ip"] = WiFi.localIP().toString();
+    wifi["rssi"] = WiFi.RSSI();
+    
+    JsonObject filesystem = system["filesystem"].to<JsonObject>();
+    filesystem["total_bytes"] = LittleFS.totalBytes();
+    filesystem["used_bytes"] = LittleFS.usedBytes();
+    
+    // Printer state
+    JsonObject printer = doc["printer"].to<JsonObject>();
+    JsonObject connection = printer["connection"].to<JsonObject>();
+    connection["websocket_connected"] = transport.webSocket.isConnected();
+    connection["elegoo_ip"] = settingsManager.getElegooIP();
+    connection["last_status_ms"] = millis() - lastStatusReceiveMs;
+    
+    JsonObject status = printer["status"].to<JsonObject>();
+    status["print_status"] = (int)printStatus;
+    status["is_printing"] = isPrinting();
+    status["current_layer"] = currentLayer;
+    status["total_layer"] = totalLayer;
+    status["progress"] = progress;
+    status["current_z"] = currentZ;
+    
+    JsonObject telemetry = printer["telemetry"].to<JsonObject>();
+    telemetry["expected_filament_mm"] = expectedFilamentMM;
+    telemetry["actual_filament_mm"] = actualFilamentMM;
+    telemetry["movement_pulses"] = (unsigned long)movementPulseCount;
+    telemetry["telemetry_available"] = expectedTelemetryAvailable;
+    telemetry["last_telemetry_ms"] = millis() - lastSuccessfulTelemetryMs;
+    
+    // Jam detection state
+    printer_info_t info = getCurrentInformation();
+    JsonObject jamDet = doc["jam_detection"].to<JsonObject>();
+    JsonObject jamState = jamDet["state"].to<JsonObject>();
+    jamState["jammed"] = jamDetector.getState().jammed;
+    jamState["grace_active"] = info.graceActive;
+    
+    JsonObject jamMetrics = jamDet["metrics"].to<JsonObject>();
+    jamMetrics["pass_ratio"] = info.passRatio;
+    jamMetrics["hard_jam_percent"] = info.hardJamPercent;
+    jamMetrics["soft_jam_percent"] = info.softJamPercent;
+    jamMetrics["expected_rate_mm_per_sec"] = info.expectedRateMmPerSec;
+    jamMetrics["actual_rate_mm_per_sec"] = info.actualRateMmPerSec;
+    jamMetrics["deficit_mm"] = info.currentDeficitMm;
+    
+    JsonObject jamConfig = jamDet["config"].to<JsonObject>();
+    jamConfig["enabled"] = settingsManager.getEnabled();
+    jamConfig["ratio_threshold"] = settingsManager.getDetectionRatioThreshold();
+    jamConfig["hard_jam_mm"] = settingsManager.getDetectionHardJamMm();
+    jamConfig["soft_jam_time_ms"] = settingsManager.getDetectionSoftJamTimeMs();
+    jamConfig["hard_jam_time_ms"] = settingsManager.getDetectionHardJamTimeMs();
+    jamConfig["grace_period_ms"] = settingsManager.getDetectionGracePeriodMs();
+    
+    // Sensor state
+    JsonObject sensors = doc["sensors"].to<JsonObject>();
+    sensors["filament_runout"] = filamentRunout;
+    sensors["movement_sensor_pin"] = MOVEMENT_SENSOR_PIN;
+    sensors["runout_sensor_pin"] = FILAMENT_RUNOUT_PIN;
+    sensors["mm_per_pulse"] = settingsManager.getMovementMmPerPulse();
+    
+    // Settings (non-sensitive)
+    JsonObject settings = doc["settings"].to<JsonObject>();
+    settings["detection_mode"] = settingsManager.getDetectionMode();
+    settings["auto_calibrate"] = settingsManager.getAutoCalibrateSensor();
+    settings["suppress_pause"] = settingsManager.getSuppressPauseCommands();
+    settings["log_level"] = settingsManager.getLogLevel();
+    settings["ui_refresh_interval_ms"] = settingsManager.getUiRefreshIntervalMs();
+    
+    // Logs summary
+    JsonObject logs = doc["logs"].to<JsonObject>();
+    logs["count"] = logger.getLogCount();
+    
+    // Serialize to string
+    String output;
+    output.reserve(2048);
+    serializeJson(doc, output);
+    
+    return output;
 }

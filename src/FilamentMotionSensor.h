@@ -2,15 +2,7 @@
 #define FILAMENT_MOTION_SENSOR_H
 
 #include <Arduino.h>
-
-// Sample for windowed tracking
-struct FilamentSample
-{
-    unsigned long timestampMs;
-    unsigned long durationMs;
-    float         expectedMm;
-    float         actualMm;
-};
+#include "FilamentFlowModel.h"
 
 /**
  * Filament motion sensor with windowed tracking algorithm
@@ -81,26 +73,20 @@ class FilamentMotionSensor
      */
     float getFlowRatio();
 
+    /**
+     * Get the underlying flow model (for advanced diagnostics)
+     */
+    const FilamentFlowModel& getFlowModel() const { return flowModel; }
+
    private:
     // Common state
     bool                 initialized;
     bool                 firstPulseReceived;  // Track if first pulse detected (skip pre-prime extrusion)
     unsigned long        lastExpectedUpdateMs;
+    unsigned long        lastSensorPulseMs;   // Track when last pulse was detected
 
-    // Windowed tracking state
-    static const int MAX_SAMPLES = 20;  // Store up to 20 samples (covers 5sec at 250ms poll rate)
-    FilamentSample   samples[MAX_SAMPLES];
-    int              sampleCount;
-    int              nextSampleIndex;
-    unsigned long    windowSizeMs;
-
-    // Sensor pulse tracking
-    unsigned long lastSensorPulseMs;  // Track when last pulse was detected
-
-    // Helper methods for windowed tracking
-    void addSample(float expectedDeltaMm, float actualDeltaMm);
-    void pruneOldSamples();
-    void getWindowedDistances(float &expectedMm, float &actualMm);
+    // Unified Flow Model
+    FilamentFlowModel    flowModel;
 };
 
 #endif  // FILAMENT_MOTION_SENSOR_H

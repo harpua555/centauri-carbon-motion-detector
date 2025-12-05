@@ -221,34 +221,15 @@ SettingsManager &SettingsManager::getInstance()
 
 SettingsManager::SettingsManager()
 {
-    isLoaded                     = false;
-    requestWifiReconnect         = false;
-    wifiChanged                  = false;
-    settings.ap_mode             = false;
-    settings.ssid                = "";
-    settings.passwd              = "";
-    settings.elegooip            = "";
-    settings.pause_on_runout     = true;
-    settings.start_print_timeout = 10000;
-    settings.enabled             = true;
-    settings.has_connected       = false;
-    settings.detection_length_mm        = 10.0f;  // DEPRECATED: Use ratio-based detection
-    settings.detection_grace_period_ms  = 5000;   // 5000ms grace period for print start (reduced from 8s)
-    settings.detection_ratio_threshold  = 0.25f;  // 25% passing threshold (~75% deficit)
-    settings.detection_hard_jam_mm      = 5.0f;   // 5mm expected with zero movement = hard jam
-    settings.detection_soft_jam_time_ms = 7000;   // 7 seconds to signal slow clog (balanced for quick detection)
-    settings.detection_hard_jam_time_ms = 3000;   // 3 seconds of negligible flow (quick response to complete jams)
-    settings.detection_mode = 0;                  // 0 = both hard + soft detection
-    settings.sdcp_loss_behavior         = 2;
-    settings.flow_telemetry_stale_ms    = 1000;
-    settings.ui_refresh_interval_ms     = 1000;
-    settings.log_level                  = 0;      // Default to Normal logging
-    settings.suppress_pause_commands    = false;  // Pause commands enabled by default
-    settings.movement_mm_per_pulse      = 2.88f;  // Actual sensor spec (2.88mm per pulse)
-    settings.auto_calibrate_sensor      = false;  // Disabled by default
-    settings.pulse_reduction_percent    = 100.0f;  // Default: no reduction
-    settings.purge_filament_mm          = 47.0f;
-    settings.test_recording_mode        = false;
+    isLoaded             = false;
+    requestWifiReconnect = false;
+    wifiChanged          = false;
+    
+    // Apply defaults via descriptor system (single source of truth)
+    for (const auto& field : kSettingFields)
+    {
+        applyDefault(field, settings);
+    }
 }
 
 bool SettingsManager::load()
@@ -572,6 +553,9 @@ void SettingsManager::setDetectionGracePeriodMs(int periodMs)
 {
     if (!isLoaded)
         load();
+    // Clamp to valid range (minimum 0ms)
+    if (periodMs < 0)
+        periodMs = 0;
     settings.detection_grace_period_ms = periodMs;
 }
 
@@ -579,6 +563,11 @@ void SettingsManager::setDetectionRatioThreshold(float threshold)
 {
     if (!isLoaded)
         load();
+    // Clamp to valid range 0.0-1.0 (ratio threshold)
+    if (threshold < 0.0f)
+        threshold = 0.0f;
+    else if (threshold > 1.0f)
+        threshold = 1.0f;
     settings.detection_ratio_threshold = threshold;
 }
 
@@ -586,6 +575,9 @@ void SettingsManager::setDetectionHardJamMm(float mmThreshold)
 {
     if (!isLoaded)
         load();
+    // Clamp to valid range (minimum 0mm)
+    if (mmThreshold < 0.0f)
+        mmThreshold = 0.0f;
     settings.detection_hard_jam_mm = mmThreshold;
 }
 
@@ -593,6 +585,9 @@ void SettingsManager::setDetectionSoftJamTimeMs(int timeMs)
 {
     if (!isLoaded)
         load();
+    // Clamp to valid range (minimum 0ms)
+    if (timeMs < 0)
+        timeMs = 0;
     settings.detection_soft_jam_time_ms = timeMs;
 }
 
@@ -600,6 +595,9 @@ void SettingsManager::setDetectionHardJamTimeMs(int timeMs)
 {
     if (!isLoaded)
         load();
+    // Clamp to valid range (minimum 0ms)
+    if (timeMs < 0)
+        timeMs = 0;
     settings.detection_hard_jam_time_ms = timeMs;
 }
 
@@ -662,6 +660,11 @@ void SettingsManager::setMovementMmPerPulse(float mmPerPulse)
 {
     if (!isLoaded)
         load();
+    // Clamp to valid range (minimum 0, reasonable max 10mm/pulse)
+    if (mmPerPulse < 0.0f)
+        mmPerPulse = 0.0f;
+    else if (mmPerPulse > 10.0f)
+        mmPerPulse = 10.0f;
     settings.movement_mm_per_pulse = mmPerPulse;
 }
 
