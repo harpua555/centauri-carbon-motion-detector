@@ -1214,6 +1214,14 @@
             printStatus: 'Live status reported by the Elegoo controller (Idle, Printing, Heating, etc.). Use this to confirm whether the printer thinks it is running.'
         };
 
+        // HTML escape helper to prevent XSS
+        function escapeHtml(str) {
+            if (str == null) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
         // Toast notifications
         function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
@@ -1227,10 +1235,16 @@
                 warning: '⚠️'
             };
 
-            toast.innerHTML = `
-                <span class="toast-icon">${icons[type]}</span>
-                <span class="toast-message">${message}</span>
-            `;
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'toast-icon';
+            iconSpan.textContent = icons[type] || 'ℹ️';
+
+            const msgSpan = document.createElement('span');
+            msgSpan.className = 'toast-message';
+            msgSpan.textContent = message;
+
+            toast.appendChild(iconSpan);
+            toast.appendChild(msgSpan);
 
             container.appendChild(toast);
 
@@ -1864,7 +1878,7 @@
 
                     <div class="form-group">
                         <label class="form-label">WiFi SSID</label>
-                        <input type="text" class="form-input" id="ssid" value="${currentSettings.ssid || ''}" required>
+                        <input type="text" class="form-input" id="ssid" value="${escapeHtml(currentSettings.ssid)}" required>
                     </div>
 
                     <div class="form-group">
@@ -1876,7 +1890,7 @@
 
                     <div class="form-group">
                         <label class="form-label">Elegoo Printer IP Address</label>
-                        <input type="text" class="form-input" id="elegooip" value="${currentSettings.elegooip || ''}" placeholder="xxx.xxx.xxx.xxx">
+                        <input type="text" class="form-input" id="elegooip" value="${escapeHtml(currentSettings.elegooip)}" placeholder="xxx.xxx.xxx.xxx">
                         <button type="button" class="btn btn-secondary" style="margin-top: 12px;" onclick="discoverPrinter()">Auto-Discover Printer</button>
                     </div>
 

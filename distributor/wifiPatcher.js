@@ -261,6 +261,9 @@ export function initWifiPatcher({ installButton, openButton, resetButton, dialog
     withDialogControls();
     setStatus(DEFAULT_STATUS_MESSAGE);
 
+    // Clean up blob URLs when page is unloaded to prevent memory leaks
+    window.addEventListener('beforeunload', clearPatches);
+
     return {
         updateBaseManifest,
         clearPatch: clearPatches,

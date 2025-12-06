@@ -463,10 +463,11 @@ const startFlashing = async () => {
         // Start serial monitor
         appendFlashLog('Starting serial monitor... (Close overlay to stop)', 'info');
         // Do not await this, let it run in background
-        state.flasher.startMonitor(port);
+        state.flasher.startMonitor(port).catch(err => {
+            appendFlashLog(`Serial monitor error: ${err.message}`, 'warn');
+        });
         state.monitoring = true;
-
-
+    } catch (error) {
         appendFlashLog(`Flash failed: ${error.message}`, 'error');
     } finally {
         state.flashing = false;
