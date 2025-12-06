@@ -8,10 +8,11 @@ Usage (run from repo root):
  python tools/build_and_release.py                                 # Standard release build
  python tools/build_and_release.py --env esp32s3              # Specific board
  python tools/build_and_release.py --version release                 # Release version increment
+ python tools/build_and_release.py --env all                        # Build release for every supported board
  python tools/build_and_release.py --version skip --env esp32       # Build only, no version update
 
 Features:
-- Always uses safe defaults: --local --ignore-secrets --increment-version
+- Always ignores secrets by default while still allowing a deliberate merge via --merge-secrets (default=ignore)
 - Version management: skip/build/ver/release (default=ver)
 - Distributor copy: Only copies firmware_merged.bin when --ignore-secrets used
 - Safety: Prevents distributor copy if secrets were merged into firmware
@@ -99,6 +100,7 @@ BOARD_TO_DISTRIBUTOR_DIR = {
     "seeed_esp32c3": "seeed_esp32c3",
 }
 
+ALL_ENVIRONMENT = "all"
 
 
 def get_distributor_dir_for_board(board_env: str) -> str:
@@ -109,6 +111,15 @@ def get_distributor_dir_for_board(board_env: str) -> str:
         The distributor directory name for the given `board_env`, or an empty string if there is no mapping.
     """
     return BOARD_TO_DISTRIBUTOR_DIR.get(board_env, "")
+
+
+def resolve_target_environments(env_option: str) -> list[str]:
+    """
+    Return the list of board environments to build for the provided `--env` flag.
+    """
+    if env_option.lower() == ALL_ENVIRONMENT:
+        return get_supported_boards()
+    return [env_option]
 
 
 @contextmanager
@@ -647,7 +658,7 @@ def main() -> None:
     parser.add_argument(
         "--env",
         default="esp32s3",
-        help="PlatformIO environment to use (default: esp32s3)",
+        help="PlatformIO environment to use (default: esp32s3). Use 'all' to build every supported board sequentially.",
     )
     parser.add_argument(
         "--version",
@@ -671,6 +682,20 @@ def main() -> None:
         default="alpha",
         help="Firmware version string to embed in the firmware binary (default: alpha).",
     )
+    secrets_group = parser.add_mutually_exclusive_group()
+    secrets_group.add_argument(
+        "--ignore-secrets",
+        dest="ignore_secrets",
+        action="store_true",
+        help="Skip merging data/secrets.json so release binaries stay clean (default).",
+    )
+    secrets_group.add_argument(
+        "--merge-secrets",
+        dest="ignore_secrets",
+        action="store_false",
+        help="Allow secrets to be merged into this build (use with caution).",
+    )
+    parser.set_defaults(ignore_secrets=True)
 
     args = parser.parse_args()
 
@@ -678,40 +703,63 @@ def main() -> None:
     tools_dir = os.path.dirname(os.path.abspath(__file__))
     repo_root = os.path.dirname(tools_dir)
 
-    # Validate environment
-    if not validate_board_environment(args.env):
-        print(f"ERROR: Unknown board environment '{args.env}'")
+    selected_env = (args.env or "").strip()
+    if not selected_env:
+        print("ERROR: --env cannot be blank.")
+        sys.exit(1)
+
+    is_all_env = selected_env.lower() == ALL_ENVIRONMENT
+    target_envs = resolve_target_environments(selected_env)
+
+    if not target_envs:
+        print("ERROR: No target environments resolved for this build.")
+        sys.exit(1)
+
+    if not is_all_env and not validate_board_environment(selected_env):
+        print(f"ERROR: Unknown board environment '{selected_env}'")
         print("Supported environments:")
         for env in get_supported_boards():
             print(f"  {env}")
         sys.exit(1)
 
     firmware_label = args.firmware_label or "alpha"
-    chip_family_label = compose_chip_family_label(args.env, args.chip)
 
-    distributor_dir = get_distributor_dir_for_board(args.env)
-    if not distributor_dir:
-        print(f"ERROR: No distributor mapping for environment '{args.env}'")
-        sys.exit(1)
+    built_envs: list[str] = []
+    first_board = True
 
-    # Build firmware
-    build_firmware(
-        repo_root,
-        args.env,
-        True,
-        args.version,
-        args.version_type,
-        chip_family_label,
-        firmware_label,
-    )
+    ignore_secrets = args.ignore_secrets
+    for board_env in target_envs:
+        if not validate_board_environment(board_env):
+            print(f"ERROR: Unsupported board environment '{board_env}'")
+            sys.exit(1)
 
-    # Copy to distributor (always use --ignore-secrets behavior)
-    copy_to_distributor(repo_root, args.env, True, chip_family_label)
+        distributor_dir = get_distributor_dir_for_board(board_env)
+        if not distributor_dir:
+            print(f"ERROR: No distributor mapping for environment '{board_env}'")
+            sys.exit(1)
+
+        chip_family_label = compose_chip_family_label(board_env, args.chip)
+        version_action = args.version if first_board else "skip"
+
+        build_firmware(
+            repo_root,
+            board_env,
+            ignore_secrets,
+            version_action,
+            args.version_type,
+            chip_family_label,
+            firmware_label,
+        )
+
+        copy_to_distributor(repo_root, board_env, ignore_secrets, chip_family_label)
+
+        built_envs.append(board_env)
+        first_board = False
 
     print("\n=== Release Complete ===")
-    print(f"Board: {args.env}")
-    print(f"Chip family: {chip_family_label}")
-    print(f"Distributor directory: {distributor_dir}")
+    print(f"Built boards: {', '.join(built_envs)}")
+    print(f"Version: {get_version_string(repo_root)}")
+    print("Distributor firmware directories updated for each board above.")
 
 
 if __name__ == "__main__":
