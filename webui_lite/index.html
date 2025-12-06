@@ -304,6 +304,62 @@
             gap: 20px;
         }
 
+        .debug-chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        .chart-panel {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(30, 35, 48, 0.8));
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+            padding: 18px 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chart-panel-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-panel .chart-container {
+            height: 220px;
+            margin-top: 10px;
+        }
+
+        .jam-bar-track {
+            position: relative;
+            width: 100%;
+            height: 32px;
+            background: var(--bg-primary);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .jam-bar-track .jam-peak-mark {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.7);
+            opacity: 0.8;
+            transition: left 0.2s ease;
+        }
+
+        .jam-peak-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
         .status-item {
             background: linear-gradient(135deg, var(--bg-tertiary) 0%, rgba(30, 35, 48, 0.5) 100%);
             padding: 24px;
@@ -314,6 +370,15 @@
             transition: all 0.3s ease;
             cursor: pointer;
             user-select: none;
+        }
+
+        .debug-field {
+            cursor: default;
+        }
+
+        .debug-field:hover {
+            transform: none;
+            box-shadow: none;
         }
 
         .status-item.active-help {
@@ -860,6 +925,7 @@
                 </div>
                 <nav>
                     <button class="nav-btn active" data-page="status">Status</button>
+                    <button class="nav-btn" data-page="debug">DEBUG</button>
                     <button class="nav-btn" data-page="settings">⚙️ Settings</button>
                     <button class="nav-btn" data-page="logs">Logs</button>
                     <button class="nav-btn" data-page="update">Update</button>
@@ -893,50 +959,93 @@
                 </div>
             </div>
 
-            <div
-                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
-                <div class="card" style="margin-bottom: 0;">
-                    <div class="card-header" style="font-size: 1.2rem; margin-bottom: 16px;">
-                        <span>Hard Jam Proximity</span>
-                    </div>
-                    <div style="margin-bottom: 12px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span style="color: var(--text-secondary); font-size: 0.9rem;">Current</span>
-                            <span id="hardJamPercent"
-                                style="color: var(--text-primary); font-weight: 700; font-size: 1.1rem;">0%</span>
-                        </div>
-                        <div
-                            style="width: 100%; height: 32px; background: var(--bg-primary); border-radius: 16px; overflow: hidden; position: relative;">
-                            <div id="hardJamBar"
-                                style="height: 100%; background: linear-gradient(90deg, var(--success), var(--warning), var(--error)); width: 0%; transition: width 0.5s ease, box-shadow 0.3s ease; box-shadow: 0 0 0 rgba(255, 107, 53, 0);">
-                            </div>
-                        </div>
-                    </div>
-                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 12px;">
-                        100% = Hard jam threshold reached
-                    </p>
+            <div class="card">
+                <div class="card-header">
+                    <span>Jam Proximity Trends</span>
                 </div>
-
-                <div class="card" style="margin-bottom: 0;">
-                    <div class="card-header" style="font-size: 1.2rem; margin-bottom: 16px;">
-                        <span>Soft Jam Proximity</span>
-                    </div>
-                    <div style="margin-bottom: 12px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span style="color: var(--text-secondary); font-size: 0.9rem;">Current</span>
-                            <span id="softJamPercent"
-                                style="color: var(--text-primary); font-weight: 700; font-size: 1.1rem;">0%</span>
+                <div class="debug-chart-row">
+                    <div class="chart-panel">
+                        <div class="chart-panel-title">Hard Jam Proximity History</div>
+                        <div class="chart-container">
+                            <canvas id="hardJamHistoryChart"></canvas>
                         </div>
-                        <div
-                            style="width: 100%; height: 32px; background: var(--bg-primary); border-radius: 16px; overflow: hidden; position: relative;">
-                            <div id="softJamBar"
-                                style="height: 100%; background: linear-gradient(90deg, var(--success), var(--warning), var(--error)); width: 0%; transition: width 0.5s ease, box-shadow 0.3s ease; box-shadow: 0 0 0 rgba(255, 107, 53, 0);">
+                    </div>
+                    <div class="chart-panel">
+                        <div class="chart-panel-title">Soft Jam Proximity History</div>
+                        <div class="chart-container">
+                            <canvas id="softJamHistoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug Page -->
+        <div id="debug" class="page">
+            <div class="card">
+                <div class="card-header">
+                    <span>Debug Data Dump</span>
+                    <small style="font-size: 0.85rem; color: var(--text-secondary); margin-left: 12px;">Every field from the status snapshot</small>
+                </div>
+                <div class="status-grid" id="debugGrid">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" style="font-size: 1.2rem; margin-bottom: 16px;">
+                    <span>Jam Proximity</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div class="card" style="margin-bottom: 0;">
+                        <div class="card-header" style="font-size: 1.1rem; margin-bottom: 12px;">
+                            <span>Hard Jam</span>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: var(--text-secondary); font-size: 0.9rem;">Current</span>
+                                <span id="hardJamPercent"
+                                    style="color: var(--text-primary); font-weight: 700; font-size: 1.1rem;">0%</span>
+                            </div>
+                            <div class="jam-bar-track">
+                                <div id="hardJamBar"
+                                    style="height: 100%; background: linear-gradient(90deg, var(--success), var(--warning), var(--error)); width: 0%; transition: width 0.5s ease, box-shadow 0.3s ease; box-shadow: 0 0 0 rgba(255, 107, 53, 0);">
+                                </div>
+                                <div id="hardJamPeakMark" class="jam-peak-mark"></div>
+                            </div>
+                            <div class="jam-peak-info">
+                                <span>Peak</span>
+                                <span id="hardJamPeakLabel">0%</span>
                             </div>
                         </div>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 12px;">
+                            100% = Hard jam threshold reached
+                        </p>
                     </div>
-                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 12px;">
-                        100% = Soft jam threshold reached
-                    </p>
+                    <div class="card" style="margin-bottom: 0;">
+                        <div class="card-header" style="font-size: 1.1rem; margin-bottom: 12px;">
+                            <span>Soft Jam</span>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: var(--text-secondary); font-size: 0.9rem;">Current</span>
+                                <span id="softJamPercent"
+                                    style="color: var(--text-primary); font-weight: 700; font-size: 1.1rem;">0%</span>
+                            </div>
+                            <div class="jam-bar-track">
+                                <div id="softJamBar"
+                                    style="height: 100%; background: linear-gradient(90deg, var(--success), var(--warning), var(--error)); width: 0%; transition: width 0.5s ease, box-shadow 0.3s ease; box-shadow: 0 0 0 rgba(255, 107, 53, 0);">
+                                </div>
+                                <div id="softJamPeakMark" class="jam-peak-mark"></div>
+                            </div>
+                            <div class="jam-peak-info">
+                                <span>Peak</span>
+                                <span id="softJamPeakLabel">0%</span>
+                            </div>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 12px;">
+                            100% = Soft jam threshold reached
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -960,12 +1069,17 @@
             <div class="card">
                 <div class="card-header">
                     <span>System Logs</span>
+                    <span id="logAccumulatorStatus" style="font-size: 0.85rem; color: var(--text-secondary); font-weight: normal;">0 entries</span>
                 </div>
                 <div class="btn-group">
                     <button type="button" class="btn" onclick="refreshLogs()">Refresh</button>
-                    <button type="button" class="btn btn-secondary" onclick="downloadLogs()">Download</button>
-                    <button type="button" class="btn btn-secondary" onclick="clearLogsDisplay()">Clear</button>
+                    <button type="button" class="btn btn-secondary" onclick="downloadLogs()">Download All</button>
+                    <button type="button" class="btn btn-secondary" onclick="clearLogsDisplay()">Clear Display</button>
+                    <button type="button" class="btn btn-secondary" onclick="clearAccumulatedLogs()">Reset</button>
                 </div>
+                <p class="form-help" style="margin: 12px 0;">
+                    Logs accumulate in your browser since page load. Download captures all entries, even those no longer on the device.
+                </p>
                 <div class="log-container" id="logContainer">
                     <div class="log-entry info">Waiting for logs...</div>
                 </div>
@@ -1016,10 +1130,6 @@
                     <span class="info-value" id="firmwareVersion">Loading...</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Build Date</span>
-                    <span class="info-value" id="buildDate">Loading...</span>
-                </div>
-                <div class="info-row">
                     <span class="info-label">Firmware Thumbprint</span>
                     <span class="info-value" id="firmwareThumbprint" style="font-family: 'Consolas', monospace;">Loading...</span>
                 </div>
@@ -1027,25 +1137,19 @@
                     <span class="info-label">Filesystem Thumbprint</span>
                     <span class="info-value" id="filesystemThumbprint" style="font-family: 'Consolas', monospace;">Loading...</span>
                 </div>
+                <div class="info-row">
+                    <span class="info-label">Build</span>
+                    <span class="info-value" id="buildVersion" style="font-family: 'Consolas', monospace;">Loading...</span>
+                </div>
 
-                <h3 style="color: var(--accent-primary); margin: 24px 0 16px;">Hardware</h3>
+                <h3 style="color: var(--accent-primary); margin: 24px 0 16px;">Hardware / Network</h3>
                 <div class="info-row">
                     <span class="info-label">Chip Model</span>
-                    <span class="info-value">ESP32-S3</span>
+                    <span class="info-value" id="chipModel">Loading...</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">MAC Address</span>
                     <span class="info-value" id="macAddress">Loading...</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Free Heap</span>
-                    <span class="info-value" id="freeHeap">Loading...</span>
-                </div>
-
-                <h3 style="color: var(--accent-primary); margin: 24px 0 16px;">Network</h3>
-                <div class="info-row">
-                    <span class="info-label">WiFi Status</span>
-                    <span class="info-value" id="wifiStatus">Loading...</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">IP Address</span>
@@ -1067,6 +1171,20 @@
             expected: [],
             actual: []
         };
+        const JAM_HISTORY_LIMIT = 60;
+        let jamHistoryData = {
+            labels: [],
+            hard: [],
+            soft: [],
+            hardPeakLine: [],
+            softPeakLine: []
+        };
+        let hardJamHistoryChart = null;
+        let softJamHistoryChart = null;
+        let latestStatusSnapshot = null;
+        let hardJamPeak = 0;
+        let softJamPeak = 0;
+        let wasPrinting = false;
         let currentStatusHelpKey = 'default';
         const STATUS_MIN_POLL_MS = 250;
         const STATUS_IDLE_STATES = new Set([0, 8, 9]);
@@ -1075,6 +1193,14 @@
         let uiRefreshIntervalMs = 1000;
         let lastChartUpdateMs = 0;
         let lastIdleState = true;
+
+        // Log accumulation state - stores logs browser-side since page load
+        const logAccumulator = {
+            entries: [],        // Chronological array of log lines
+            seen: new Set(),    // Deduplication set for O(1) lookup
+            maxEntries: 10000,  // Memory safety limit
+            sessionStart: null  // Timestamp when accumulation started
+        };
 
         const statusHelpText = {
             default: 'Tap any status tile to learn more about that value.',
@@ -1133,13 +1259,19 @@
             });
 
             stopStatusPolling();
-            stopStatusStream();
+            const needsStatusStream = (pageName === 'status' || pageName === 'debug');
+            const streamWasActive = Boolean(statusEventSource);
+            if (needsStatusStream && !streamWasActive) {
+                startStatusStream();
+                requestStatusSnapshot(true);
+            } else if (!needsStatusStream && streamWasActive) {
+                stopStatusStream();
+            }
             if (logsInterval) clearInterval(logsInterval);
 
             if (pageName === 'status') {
-                startStatusStream();
-                requestStatusSnapshot(true);
                 initChart();
+                initJamCharts();
             } else if (pageName === 'settings') {
                 loadSettings();
             } else if (pageName === 'logs') {
@@ -1147,6 +1279,8 @@
                 logsInterval = setInterval(loadLogs, 3000);
             } else if (pageName === 'about') {
                 loadAboutInfo();
+            } else if (pageName === 'debug') {
+                renderDebugData(latestStatusSnapshot);
             }
         }
 
@@ -1202,6 +1336,166 @@
             });
         }
 
+        function buildJamChart(ctx, label, dataArray, color, fillColor, peakArray) {
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: jamHistoryData.labels,
+                    datasets: [
+                        {
+                            label,
+                            data: dataArray,
+                            borderColor: color,
+                            backgroundColor: fillColor,
+                            borderWidth: 2,
+                            tension: 0.35,
+                            pointRadius: 0,
+                            fill: 'start'
+                        },
+                        {
+                            label: `${label} Peak`,
+                            data: peakArray,
+                            borderColor: '#ffffff',
+                            borderWidth: 1,
+                            borderDash: [6, 4],
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    scales: {
+                        x: {
+                            ticks: { color: '#9aa0a6' },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        },
+                        y: {
+                            min: 0,
+                            max: 100,
+                            ticks: { color: '#9aa0a6' },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: context => {
+                                    const value =
+                                        typeof context.parsed?.y === 'number'
+                                            ? context.parsed.y
+                                            : context.parsed || 0;
+                                    return `${value.toFixed(1)}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initJamCharts() {
+            const hardCtx = document.getElementById('hardJamHistoryChart');
+            const softCtx = document.getElementById('softJamHistoryChart');
+            if (!hardCtx || !softCtx) return;
+
+            if (hardJamHistoryChart) {
+                hardJamHistoryChart.destroy();
+            }
+            if (softJamHistoryChart) {
+                softJamHistoryChart.destroy();
+            }
+
+            hardJamHistoryChart = buildJamChart(
+                hardCtx,
+                'Hard Jam %',
+                jamHistoryData.hard,
+                '#ff6b35',
+                'rgba(255, 107, 53, 0.25)',
+                jamHistoryData.hardPeakLine
+            );
+            softJamHistoryChart = buildJamChart(
+                softCtx,
+                'Soft Jam %',
+                jamHistoryData.soft,
+                '#f7931e',
+                'rgba(247, 147, 30, 0.25)',
+                jamHistoryData.softPeakLine
+            );
+        }
+
+        function updateJamHistoryCharts() {
+            if (hardJamHistoryChart) {
+                hardJamHistoryChart.data.labels = jamHistoryData.labels;
+                hardJamHistoryChart.data.datasets[0].data = jamHistoryData.hard;
+                hardJamHistoryChart.data.datasets[1].data = jamHistoryData.hardPeakLine;
+                hardJamHistoryChart.update('none');
+            }
+            if (softJamHistoryChart) {
+                softJamHistoryChart.data.labels = jamHistoryData.labels;
+                softJamHistoryChart.data.datasets[0].data = jamHistoryData.soft;
+                softJamHistoryChart.data.datasets[1].data = jamHistoryData.softPeakLine;
+                softJamHistoryChart.update('none');
+            }
+        }
+
+        function recordJamHistory(hardPercent, softPercent) {
+            const timestamp = new Date().toLocaleTimeString();
+            const hardValue = Math.max(0, Math.min(100, Number(hardPercent) || 0));
+            const softValue = Math.max(0, Math.min(100, Number(softPercent) || 0));
+
+            jamHistoryData.labels.push(timestamp);
+            jamHistoryData.hard.push(hardValue);
+            jamHistoryData.soft.push(softValue);
+            jamHistoryData.hardPeakLine.push(hardJamPeak);
+            jamHistoryData.softPeakLine.push(softJamPeak);
+
+            if (jamHistoryData.labels.length > JAM_HISTORY_LIMIT) {
+                jamHistoryData.labels.shift();
+                jamHistoryData.hard.shift();
+                jamHistoryData.soft.shift();
+                jamHistoryData.hardPeakLine.shift();
+                jamHistoryData.softPeakLine.shift();
+            }
+
+            updateJamHistoryCharts();
+        }
+
+        function updatePeakDisplays() {
+            const hardPeakLabel = document.getElementById('hardJamPeakLabel');
+            const softPeakLabel = document.getElementById('softJamPeakLabel');
+            const hardPeakMark = document.getElementById('hardJamPeakMark');
+            const softPeakMark = document.getElementById('softJamPeakMark');
+            const clamp = value => Math.max(0, Math.min(100, value));
+            if (hardPeakLabel) {
+                hardPeakLabel.textContent = `${Math.round(clamp(hardJamPeak))}%`;
+            }
+            if (softPeakLabel) {
+                softPeakLabel.textContent = `${Math.round(clamp(softJamPeak))}%`;
+            }
+            if (hardPeakMark) {
+                hardPeakMark.style.left = `${clamp(hardJamPeak)}%`;
+            }
+            if (softPeakMark) {
+                softPeakMark.style.left = `${clamp(softJamPeak)}%`;
+            }
+        }
+
+        function resetJamHistory() {
+            hardJamPeak = 0;
+            softJamPeak = 0;
+            jamHistoryData.labels.length = 0;
+            jamHistoryData.hard.length = 0;
+            jamHistoryData.soft.length = 0;
+            jamHistoryData.hardPeakLine.length = 0;
+            jamHistoryData.softPeakLine.length = 0;
+            updateJamHistoryCharts();
+            updatePeakDisplays();
+        }
+
         // Update chart
         function updateChart(expected, actual) {
             const nowLabel = new Date().toLocaleTimeString();
@@ -1229,7 +1523,7 @@
         }
 
         // Update jam proximity gauges
-        function updateJamProximity(hardJamPercent, softJamPercent) {
+        function updateJamProximity(hardJamPercent, softJamPercent, passRatio, ratioThreshold) {
             // Update hard jam gauge
             const hardJamBar = document.getElementById('hardJamBar');
             const hardJamText = document.getElementById('hardJamPercent');
@@ -1263,6 +1557,11 @@
                     softJamBar.style.boxShadow = '0 0 0 rgba(255, 107, 53, 0)';
                 }
             }
+
+            hardJamPeak = Math.max(hardJamPeak, hardJamPercent);
+            softJamPeak = Math.max(softJamPeak, softJamPercent);
+            updatePeakDisplays();
+            recordJamHistory(hardJamPercent, softJamPercent);
         }
 
         async function fetchStatusSnapshot(options = {}) {
@@ -1338,10 +1637,7 @@
         }
 
         function renderStatusData(data) {
-            if (!isStatusPageActive()) return;
-            const grid = document.getElementById('statusGrid');
-            if (!grid) return;
-
+            const statusActive = isStatusPageActive();
             const printerConnected = data.elegoo && data.elegoo.isWebsocketConnected;
             const filamentStopped = data.stopped || false;
             const filamentRunout = data.filamentRunout || false;
@@ -1351,67 +1647,153 @@
             }
 
             const isPrinting = printStatus !== 0 && printStatus !== 9;
-            if (isPrinting) {
+            if (isPrinting && !wasPrinting) {
+                resetJamHistory();
+            }
+            if (statusActive && isPrinting) {
                 maybeUpdateChart(
                     data.elegoo?.expectedFilament || 0,
                     data.elegoo?.actualFilament || 0
                 );
             }
 
-            updateJamProximity(
-                data.elegoo?.hardJamPercent || 0,
-                data.elegoo?.softJamPercent || 0
-            );
+            const hardJamPercent = data.elegoo?.hardJamPercent || 0;
+            const softJamPercent = data.elegoo?.softJamPercent || 0;
+            const passRatio = typeof data.elegoo?.passRatio === 'number' ? data.elegoo.passRatio : 1;
+            const ratioThreshold = typeof data.elegoo?.ratioThreshold === 'number' ? data.elegoo.ratioThreshold : 0.25;
+            updateJamProximity(hardJamPercent, softJamPercent, passRatio, ratioThreshold);
 
-            grid.innerHTML = `
-                <div class="status-item" data-help-key="printerConnected">
-                    <div class="status-label">Printer Connected</div>
-                    <div class="status-value">
-                        <span class="status-badge ${printerConnected ? 'active' : 'inactive'} no-pulse">
-                            ${printerConnected ? 'Connected' : 'Disconnected'}
-                        </span>
+            const grid = document.getElementById('statusGrid');
+            if (statusActive && grid) {
+                grid.innerHTML = `
+                    <div class="status-item" data-help-key="printerConnected">
+                        <div class="status-label">Printer Connected</div>
+                        <div class="status-value">
+                            <span class="status-badge ${printerConnected ? 'active' : 'inactive'} no-pulse">
+                                ${printerConnected ? 'Connected' : 'Disconnected'}
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <div class="status-item" data-help-key="filamentRunout">
-                    <div class="status-label">Filament Runout</div>
-                    <div class="status-value">
-                        <span class="status-badge ${filamentRunout ? 'warning' : 'active'} ${isPrinting ? '' : 'no-pulse'}">
-                            ${filamentRunout ? 'Runout!' : 'Normal'}
-                        </span>
+                    <div class="status-item" data-help-key="filamentRunout">
+                        <div class="status-label">Filament Runout</div>
+                        <div class="status-value">
+                            <span class="status-badge ${filamentRunout ? 'warning' : 'active'} ${isPrinting ? '' : 'no-pulse'}">
+                                ${filamentRunout ? 'Runout!' : 'Normal'}
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <div class="status-item" data-help-key="filamentStopped">
-                    <div class="status-label">Filament Stopped</div>
-                    <div class="status-value">
-                        <span class="status-badge ${filamentStopped ? 'warning' : 'active'} ${isPrinting ? '' : 'no-pulse'}">
-                            ${filamentStopped ? 'Stopped' : 'Moving'}
-                        </span>
+                    <div class="status-item" data-help-key="filamentStopped">
+                        <div class="status-label">Filament Stopped</div>
+                        <div class="status-value">
+                            <span class="status-badge ${filamentStopped ? 'warning' : 'active'} ${isPrinting ? '' : 'no-pulse'}">
+                                ${filamentStopped ? 'Stopped' : 'Normal'}
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <div class="status-item" data-help-key="movementPulses">
-                    <div class="status-label">Movement Pulses</div>
-                    <div class="status-value">${(data.elegoo?.movementPulses || 0).toLocaleString()}</div>
-                </div>
-                <div class="status-item" data-help-key="expectedFilament">
-                    <div class="status-label">Expected Filament</div>
-                    <div class="status-value">${(data.elegoo?.expectedFilament || 0).toFixed(2)} mm</div>
-                </div>
-                <div class="status-item" data-help-key="actualFilament">
-                    <div class="status-label">Actual Filament</div>
-                    <div class="status-value">${(data.elegoo?.actualFilament || 0).toFixed(2)} mm</div>
-                </div>
-                <div class="status-item" data-help-key="deficit">
-                    <div class="status-label">Deficit</div>
-                    <div class="status-value">${(data.elegoo?.currentDeficitMm || 0).toFixed(2)} mm</div>
-                </div>
-                <div class="status-item" data-help-key="printStatus">
-                    <div class="status-label">Print Status</div>
-                    <div class="status-value" style="font-size: 1.2rem;">${getPrintStatus(data.elegoo?.printStatus)}</div>
-                </div>
-            `;
-            attachStatusHelp();
-            setStatusHelpMessage(currentStatusHelpKey || 'default');
+                    <div class="status-item" data-help-key="movementPulses">
+                        <div class="status-label">Movement Pulses</div>
+                        <div class="status-value">${(data.elegoo?.movementPulses || 0).toLocaleString()}</div>
+                    </div>
+                    <div class="status-item" data-help-key="expectedFilament">
+                        <div class="status-label">Expected Filament</div>
+                        <div class="status-value">${(data.elegoo?.expectedFilament || 0).toFixed(2)} mm</div>
+                    </div>
+                    <div class="status-item" data-help-key="actualFilament">
+                        <div class="status-label">Actual Filament</div>
+                        <div class="status-value">${(data.elegoo?.actualFilament || 0).toFixed(2)} mm</div>
+                    </div>
+                    <div class="status-item" data-help-key="deficit">
+                        <div class="status-label">Deficit</div>
+                        <div class="status-value">${(data.elegoo?.currentDeficitMm || 0).toFixed(2)} mm</div>
+                    </div>
+                    <div class="status-item" data-help-key="printStatus">
+                        <div class="status-label">Print Status</div>
+                        <div class="status-value" style="font-size: 1.2rem;">${getPrintStatus(data.elegoo?.printStatus)}</div>
+                    </div>
+                `;
+                attachStatusHelp();
+                setStatusHelpMessage(currentStatusHelpKey || 'default');
+            }
+
             updateRefreshState(!!printerConnected, printStatus);
+            latestStatusSnapshot = data;
+            if (isDebugPageActive()) {
+                renderDebugData(data);
+            }
+            wasPrinting = isPrinting;
+        }
+
+        const DEBUG_FIELDS = [
+            { label: 'Print Halted', key: 'stopped', source: 'top' },
+            { label: 'Filament Runout', key: 'filamentRunout', source: 'top' },
+            { label: 'Filament Stopped', key: 'filamentStopped', source: 'elegoo' },
+            { label: 'Expected Filament (mm)', key: 'expectedFilament', source: 'elegoo' },
+            { label: 'Actual Filament (mm)', key: 'actualFilament', source: 'elegoo' },
+            { label: 'Movement Pulses', key: 'movementPulses', source: 'elegoo' },
+            { label: 'Window Deficit (mm)', key: 'currentDeficitMm', source: 'elegoo' },
+            { label: 'Deficit Ratio', key: 'deficitRatio', source: 'elegoo' },
+            { label: 'Pass Ratio', key: 'passRatio', source: 'elegoo' },
+            { label: 'Hard Jam %', key: 'hardJamPercent', source: 'elegoo' },
+            { label: 'Soft Jam %', key: 'softJamPercent', source: 'elegoo' },
+            { label: 'Expected Rate (mm/s)', key: 'expectedRateMmPerSec', source: 'elegoo' },
+            { label: 'Actual Rate (mm/s)', key: 'actualRateMmPerSec', source: 'elegoo' },
+            { label: 'Grace Active', key: 'graceActive', source: 'elegoo' },
+            { label: 'Printer Status Code', key: 'printStatus', source: 'elegoo' }
+        ];
+
+        function formatDebugValue(value, key) {
+            if (value === null || value === undefined) return '—';
+            if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+            if (typeof value === 'number') {
+                if (key === 'printStatus') {
+                    const statusText = getPrintStatus(value);
+                    return `${value} - ${statusText}`;
+                }
+                return Number.isInteger(value) ? value.toString() : value.toFixed(2);
+            }
+            return value.toString();
+        }
+
+        function renderDebugData(data) {
+            const grid = document.getElementById('debugGrid');
+            if (!grid) return;
+
+            if (!data) {
+                grid.innerHTML = `
+                    <div class="status-item debug-field">
+                        <div class="status-label">Waiting for snapshot</div>
+                        <div class="status-value">Refresh the status tab to populate</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const elegoo = data.elegoo || {};
+            const rows = [];
+            DEBUG_FIELDS.forEach(field => {
+                const value =
+                    field.source === 'top'
+                        ? data[field.key]
+                        : elegoo[field.key];
+                if (value === undefined) {
+                    return;
+                }
+                rows.push(`
+                    <div class="status-item debug-field">
+                        <div class="status-label">${field.label}</div>
+                        <div class="status-value">${formatDebugValue(value, field.key)}</div>
+                    </div>
+                `);
+            });
+
+            grid.innerHTML = rows.length
+                ? rows.join('')
+                : `
+                    <div class="status-item debug-field">
+                        <div class="status-label">No debug data</div>
+                        <div class="status-value">Snapshot incomplete</div>
+                    </div>
+                `;
         }
 
         function requestStatusSnapshot(force = false) {
@@ -1501,71 +1883,53 @@
                     <h3 class="section-title">Detection Settings</h3>
 
                     <div class="form-group">
-                        <label class="form-label">Detection Length (mm)</label>
-                        <input type="number" step="0.5" class="form-input" id="detection_length_mm" value="${currentSettings.detection_length_mm || 10.0}" min="1" max="30">
-                        <p class="form-help">Distance threshold for jam detection. Recommended: 7-15mm. Klipper default is 7mm.</p>
+                        <label class="form-label">Filament Movement per Pulse (mm)</label>
+                        <input type="number" step="0.01" class="form-input" id="movement_mm_per_pulse" value="${(currentSettings.movement_mm_per_pulse || 2.88).toFixed(4)}" min="0.1" max="10">
+                        <p class="form-help">Distance filament moves per sensor rotation. Default: 2.88mm per the SFS 2.0 specification. Enable 'Auto-calibrate sensor at print end' to automatically adjust this value, or manually calibrate by measuring actual vs. expected filament usage over a test print. Different sensor batches may vary slightly.</p>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Filament Movement per Pulse (mm)</label>
-                        <input type="number" step="0.01" class="form-input" id="movement_mm_per_pulse" value="${currentSettings.movement_mm_per_pulse || 2.88}" min="0.1" max="10">
-                        <p class="form-help">Default: 2.88mm (SFS 2.0 spec). Adjust only if calibration shows different values.</p>
+                        <label class="form-label">Reduce Pulses to (%)</label>
+                        <input type="number" step="1" class="form-input" id="pulse_reduction_percent" value="${Math.round(currentSettings.pulse_reduction_percent || 100)}" min="0" max="100">
+                        <p class="form-help">Simulate under-extrusion by counting only a percentage of pulses. 100% = normal operation, 50% = every other pulse, 20% = 1 out of 5 pulses, 0% = complete blockage. Useful for testing jam detection without physically modifying filament flow.</p>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Detection Grace Period (ms)</label>
-                        <input type="number" class="form-input" id="detection_grace_period_ms" value="${currentSettings.detection_grace_period_ms || 500}" min="0" max="2000" step="100">
-                        <p class="form-help">Time to wait after move command before checking for jams. Default: 500ms.</p>
+                        <input type="number" class="form-input" id="detection_grace_period_ms" value="${currentSettings.detection_grace_period_ms || 8000}" min="0" max="15000" step="100">
+                        <p class="form-help">Time-based grace period after print starts before jam detection activates. Prevents false positives during print startup. The windowed tracking algorithm automatically handles purge lines and SDCP timing variations. Default: 5000ms.</p>
                     </div>
 
-                    <h3 class="section-title">Tracking Algorithm</h3>
-
-                    <div class="form-group">
-                        <label class="form-label">Tracking Mode</label>
-                        <select class="form-select" id="tracking_mode">
-                            <option value="0" ${currentSettings.tracking_mode == 0 ? 'selected' : ''}>Mode 0: Cumulative (Legacy)</option>
-                            <option value="1" ${currentSettings.tracking_mode == 1 ? 'selected' : ''}>Mode 1: Windowed (Recommended)</option>
-                            <option value="2" ${currentSettings.tracking_mode == 2 ? 'selected' : ''}>Mode 2: EWMA</option>
-                        </select>
-                        <p class="form-help">Mode 1 (Windowed) is recommended for production use.</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Windowed Mode: Window Size (ms)</label>
-                        <input type="number" class="form-input" id="tracking_window_ms" value="${currentSettings.tracking_window_ms || 5000}" min="1000" max="10000" step="1000">
-                        <p class="form-help">Sliding window size for Mode 1. Default: 5000ms (5 seconds).</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">EWMA Alpha (smoothing factor)</label>
-                        <input type="number" step="0.05" class="form-input" id="tracking_ewma_alpha" value="${currentSettings.tracking_ewma_alpha || 0.3}" min="0.1" max="0.5">
-                        <p class="form-help">For Mode 2 (EWMA). Default: 0.3. Lower = smoother, Higher = more responsive.</p>
+                    <div class="form-group" style="opacity: 0.5; pointer-events: none;">
+                        <label class="form-label">Purge Line Filament (mm) <span style="color: var(--text-secondary); font-size: 0.9em;">(Reserved for future use)</span></label>
+                        <input type="number" class="form-input" id="purge_filament_mm" value="${(currentSettings.purge_filament_mm !== undefined ? currentSettings.purge_filament_mm : 47).toFixed(1)}" min="0" step="0.5" disabled>
+                        <p class="form-help">This setting is reserved for potential future features. Currently not used by the jam detection algorithm.</p>
                     </div>
 
                     <h3 class="section-title">Jam Detection Thresholds</h3>
 
                     <div class="form-group">
                         <label class="form-label">Soft Jam Ratio Threshold (%)</label>
-                        <input type="number" class="form-input" id="detection_ratio_threshold" value="${(currentSettings.detection_ratio_threshold * 100 || 25)}" min="5" max="50">
-                        <p class="form-help">Minimum pass ratio before triggering. Default: 25%. Lower = more sensitive.</p>
+                        <input type="number" class="form-input" id="detection_ratio_threshold" value="${currentSettings.detection_ratio_threshold || 25}" min="5" max="50">
+                        <p class="form-help">Percentage of expected filament movement that must actually occur to be considered normal. For example, 60% means if flow drops below 60% of expected for longer than the soft jam time threshold, a soft jam is triggered. Higher = more sensitive (warns on smaller deficits); lower = more tolerant (only severe under-extrusion triggers).</p>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Soft Jam Time Threshold (seconds)</label>
                         <input type="number" class="form-input" id="detection_soft_jam_time_ms" value="${(currentSettings.detection_soft_jam_time_ms / 1000 || 10)}" min="3" max="30">
-                        <p class="form-help">How long soft jam must persist before pausing. Default: 10 seconds.</p>
+                        <p class="form-help">How long the flow ratio must stay below the threshold before triggering a pause. Longer delays prevent false positives from temporary under-extrusion (like bridges or overhangs), but slower to catch real clogs. Default: 10 seconds.</p>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Hard Jam Distance Threshold (mm)</label>
-                        <input type="number" step="0.5" class="form-input" id="detection_hard_jam_mm" value="${currentSettings.detection_hard_jam_mm || 5.0}" min="1" max="15">
-                        <p class="form-help">Minimum expected movement with zero sensor pulses. Default: 5mm.</p>
+                        <input type="number" step="0.5" class="form-input" id="detection_hard_jam_mm" value="${(currentSettings.detection_hard_jam_mm || 5.0).toFixed(1)}" min="1" max="15">
+                        <p class="form-help">If the printer commands at least this much filament movement but the sensor detects zero pulses for the hard jam time threshold, a hard jam is triggered. Lower = more sensitive to complete blockages. Increase if you have extruder slippage or very soft filament. Default: 5mm.</p>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Hard Jam Time Threshold (seconds)</label>
                         <input type="number" class="form-input" id="detection_hard_jam_time_ms" value="${(currentSettings.detection_hard_jam_time_ms / 1000 || 5)}" min="2" max="15">
-                        <p class="form-help">How long hard jam must persist before pausing. Default: 5 seconds.</p>
+                        <p class="form-help">How long a hard jam condition (zero sensor pulses despite commanded extrusion) must persist before triggering a pause. This delay prevents false positives from momentary sensor glitches or brief retraction events. Default: 5 seconds.</p>
                     </div>
 
                     <h3 class="section-title">Behavior Settings</h3>
@@ -1573,7 +1937,7 @@
                     <div class="form-group">
                         <label class="form-label">Start Print Timeout (seconds)</label>
                         <input type="number" class="form-input" id="start_print_timeout" value="${(currentSettings.start_print_timeout / 1000 || 10)}" min="1" max="60">
-                        <p class="form-help">Time to wait after print starts before allowing pause on runout.</p>
+                        <p class="form-help">Delay before filament runout detection becomes active after print starts. Prevents false triggers during initial purge/prime moves.</p>
                     </div>
 
                     <div class="form-group checkbox-group">
@@ -1589,33 +1953,48 @@
                     <div class="form-group checkbox-group">
                         <input type="checkbox" id="auto_calibrate_sensor" ${currentSettings.auto_calibrate_sensor ? 'checked' : ''}>
                         <label class="form-label" for="auto_calibrate_sensor" style="margin: 0;">Auto-calibrate sensor at print end</label>
+                        <p class="form-help" style="margin-left: 36px; margin-top: 8px;">Automatically adjusts the 'Filament Movement per Pulse' value based on actual print data when a print completes. Enable this to fine-tune sensor accuracy over time. Requires at least one complete print to calibrate.</p>
                     </div>
 
-                    <div class="form-group checkbox-group">
-                        <input type="checkbox" id="dev_mode" ${currentSettings.dev_mode ? 'checked' : ''}>
-                        <label class="form-label" for="dev_mode" style="margin: 0;">Developer Mode (suppress pause commands)</label>
-                    </div>
+                      <h3 class="section-title">Logging Settings</h3>
 
-                    <div class="form-group checkbox-group">
-                        <input type="checkbox" id="verbose_logging" ${currentSettings.verbose_logging ? 'checked' : ''}>
-                        <label class="form-label" for="verbose_logging" style="margin: 0;">Verbose flow logging</label>
-                    </div>
+                      <div class="form-group">
+                          <label class="form-label">Log Level</label>
+                          <select class="form-select" id="log_level">
+                              <option value="0" ${(currentSettings.log_level === 0 || currentSettings.log_level === undefined) ? 'selected' : ''}>Normal</option>
+                              <option value="1" ${currentSettings.log_level == 1 ? 'selected' : ''}>Verbose</option>
+                              <option value="2" ${currentSettings.log_level == 2 ? 'selected' : ''}>Pin Values (Emergency Debug)</option>
+                          </select>
+                          <p class="form-help">Normal = production logging (startup, successes, failures, basic stats). Verbose = detailed flow state and telemetry. Pin Values = raw pin states (very chatty, emergency debugging only).</p>
+                      </div>
 
-                    <div class="form-group checkbox-group">
-                        <input type="checkbox" id="flow_summary_logging" ${currentSettings.flow_summary_logging ? 'checked' : ''}>
-                        <label class="form-label" for="flow_summary_logging" style="margin: 0;">Flow summary logging (1 line/sec)</label>
+                      <div class="form-group">
+                          <label class="form-label">Jam Detection Mode</label>
+                          <select class="form-select" id="detection_mode">
+                              <option value="0" ${(currentSettings.detection_mode === 0 || currentSettings.detection_mode === undefined) ? 'selected' : ''}>Soft + Hard (default)</option>
+                              <option value="1" ${currentSettings.detection_mode == 1 ? 'selected' : ''}>Hard only (ignore soft detection)</option>
+                              <option value="2" ${currentSettings.detection_mode == 2 ? 'selected' : ''}>Soft only (ignore hard detection)</option>
+                          </select>
+                          <p class="form-help">Choose how the firmware evaluates jams; use Hard only to focus on total blockages or Soft only to watch for gradual underextrusion.</p>
+                      </div>
+
+                      <div class="form-group checkbox-group">
+                          <input type="checkbox" id="suppress_pause_commands" ${currentSettings.suppress_pause_commands ? 'checked' : ''}>
+                          <label class="form-label" for="suppress_pause_commands" style="margin: 0;">Suppress Cancel Messages</label>
+                        <p class="form-help" style="margin-left: 36px; margin-top: 8px;">Prevent the sensor from sending pause/cancel commands to the printer. Useful for testing and development. When enabled, pause attempts will be logged but not sent.</p>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">SDCP Loss Behavior</label>
+                        <label class="form-label">Printer Connection Loss Behavior</label>
                         <select class="form-select" id="sdcp_loss_behavior">
-                            <option value="1" ${currentSettings.sdcp_loss_behavior == 1 ? 'selected' : ''}>Pause print when SDCP replies stop</option>
-                            <option value="2" ${currentSettings.sdcp_loss_behavior == 2 ? 'selected' : ''}>Disable detection until SDCP replies return</option>
+                            <option value="1" ${currentSettings.sdcp_loss_behavior == 1 ? 'selected' : ''}>Pause print if connection to printer is lost</option>
+                            <option value="2" ${currentSettings.sdcp_loss_behavior == 2 ? 'selected' : ''}>Disable jam detection if connection to printer is lost</option>
                         </select>
+                        <p class="form-help">Controls behavior when the device loses communication with the printer's telemetry system.</p>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">SDCP Connection Lost Timeout (ms)</label>
+                        <label class="form-label">Printer Connection Timeout (ms)</label>
                         <input type="number" class="form-input" id="flow_telemetry_stale_ms" value="${currentSettings.flow_telemetry_stale_ms || 1000}" min="250" max="60000" step="250">
                         <p class="form-help">Time without telemetry before considering connection lost.</p>
                     </div>
@@ -1623,11 +2002,13 @@
                     <div class="form-group">
                         <label class="form-label">Web UI Refresh Interval (ms)</label>
                         <input type="number" class="form-input" id="ui_refresh_interval_ms" value="${currentSettings.ui_refresh_interval_ms || 1000}" min="250" max="5000" step="250">
-                        <p class="form-help">How often the Status page polls for updates.</p>
+                        <p class="form-help">How often the Status page updates sensor data. Lower values = more responsive display but higher CPU usage. Recommended: 500-1000ms for active monitoring, 2000-5000ms for passive monitoring.</p>
                     </div>
 
                     <div class="btn-group">
                         <button type="button" class="btn" onclick="saveSettings()">Save Settings</button>
+                        <button type="button" class="btn btn-secondary" onclick="testPause()">Send Pause Command</button>
+                        <button type="button" class="btn btn-secondary" onclick="testResume()">Send Resume Command</button>
                     </div>
                 `;
             } catch (error) {
@@ -1646,23 +2027,20 @@
                     pause_on_runout: document.getElementById('pause_on_runout').checked,
                     start_print_timeout: parseInt(document.getElementById('start_print_timeout').value) * 1000,
                     enabled: document.getElementById('enabled').checked,
-                    detection_length_mm: parseFloat(document.getElementById('detection_length_mm').value),
                     detection_grace_period_ms: parseInt(document.getElementById('detection_grace_period_ms').value),
-                    tracking_mode: parseInt(document.getElementById('tracking_mode').value),
-                    tracking_window_ms: parseInt(document.getElementById('tracking_window_ms').value),
-                    tracking_ewma_alpha: parseFloat(document.getElementById('tracking_ewma_alpha').value),
-                    detection_ratio_threshold: parseFloat(document.getElementById('detection_ratio_threshold').value) / 100,
-                    detection_hard_jam_mm: parseFloat(document.getElementById('detection_hard_jam_mm').value),
-                    detection_soft_jam_time_ms: parseInt(document.getElementById('detection_soft_jam_time_ms').value) * 1000,
-                    detection_hard_jam_time_ms: parseInt(document.getElementById('detection_hard_jam_time_ms').value) * 1000,
-                    sdcp_loss_behavior: parseInt(document.getElementById('sdcp_loss_behavior').value),
+                    detection_ratio_threshold: parseInt(document.getElementById('detection_ratio_threshold').value),
+                      detection_hard_jam_mm: parseFloat(document.getElementById('detection_hard_jam_mm').value),
+                      detection_soft_jam_time_ms: parseInt(document.getElementById('detection_soft_jam_time_ms').value) * 1000,
+                      detection_hard_jam_time_ms: parseInt(document.getElementById('detection_hard_jam_time_ms').value) * 1000,
+                      detection_mode: parseInt(document.getElementById('detection_mode').value),
+                      sdcp_loss_behavior: parseInt(document.getElementById('sdcp_loss_behavior').value),
                     flow_telemetry_stale_ms: parseInt(document.getElementById('flow_telemetry_stale_ms').value),
                     ui_refresh_interval_ms: parseInt(document.getElementById('ui_refresh_interval_ms').value),
-                    dev_mode: document.getElementById('dev_mode').checked,
-                    verbose_logging: document.getElementById('verbose_logging').checked,
-                    flow_summary_logging: document.getElementById('flow_summary_logging').checked,
+                    log_level: parseInt(document.getElementById('log_level').value),
+                    suppress_pause_commands: document.getElementById('suppress_pause_commands').checked,
                     movement_mm_per_pulse: parseFloat(document.getElementById('movement_mm_per_pulse').value),
                     auto_calibrate_sensor: document.getElementById('auto_calibrate_sensor').checked,
+                    pulse_reduction_percent: parseFloat(document.getElementById('pulse_reduction_percent').value),
                 };
 
                 const response = await fetch('/update_settings', {
@@ -1679,6 +2057,32 @@
                 }
             } catch (error) {
                 showToast('Failed to save settings: ' + error.message, 'error');
+            }
+        }
+
+        async function testPause() {
+            try {
+                const response = await fetch('/test_pause', { method: 'POST' });
+                if (response.ok) {
+                    showToast('Pause command sent', 'success');
+                } else {
+                    throw new Error('Request failed');
+                }
+            } catch (error) {
+                showToast('Failed to send pause command: ' + error.message, 'error');
+            }
+        }
+
+        async function testResume() {
+            try {
+                const response = await fetch('/test_resume', { method: 'POST' });
+                if (response.ok) {
+                    showToast('Resume command sent', 'success');
+                } else {
+                    throw new Error('Request failed');
+                }
+            } catch (error) {
+                showToast('Failed to send resume command: ' + error.message, 'error');
             }
         }
 
@@ -1699,20 +2103,132 @@
             }
         }
 
-        // Logs Page
+        // Logs Page - Accumulation Functions
+
+        /**
+         * Initialize or reset the log accumulator
+         */
+        function initLogAccumulator() {
+            logAccumulator.entries = [];
+            logAccumulator.seen = new Set();
+            logAccumulator.sessionStart = new Date();
+            updateLogAccumulatorStatus();
+        }
+
+        /**
+         * Add new log entries to the accumulator, deduplicating by full line content
+         * @param {string[]} newLines - Array of log lines from the server
+         * @returns {number} Number of new unique entries added
+         */
+        function accumulateLogs(newLines) {
+            let addedCount = 0;
+
+            for (const line of newLines) {
+                const trimmed = line.trim();
+                if (trimmed.length === 0) continue;
+
+                // Deduplicate by full line content
+                if (logAccumulator.seen.has(trimmed)) continue;
+
+                // Add to accumulator
+                logAccumulator.seen.add(trimmed);
+                logAccumulator.entries.push(trimmed);
+                addedCount++;
+            }
+
+            // Enforce maximum entry limit (FIFO eviction)
+            while (logAccumulator.entries.length > logAccumulator.maxEntries) {
+                const removed = logAccumulator.entries.shift();
+                logAccumulator.seen.delete(removed);
+            }
+
+            // Sort entries chronologically by timestamp
+            if (addedCount > 0) {
+                logAccumulator.entries.sort(compareLogTimestamps);
+                updateLogAccumulatorStatus();
+            }
+
+            return addedCount;
+        }
+
+        /**
+         * Compare two log lines by their timestamp prefix for sorting
+         * Format: MM.DD.YY-HH:MM:SS message
+         */
+        function compareLogTimestamps(a, b) {
+            // Parse MM.DD.YY-HH:MM:SS to comparable YYMMDDHHMMSS
+            const parseTs = (ts) => {
+                const match = ts.match(/^(\d{2})\.(\d{2})\.(\d{2})-(\d{2}):(\d{2}):(\d{2})/);
+                if (!match) return '000000000000';
+                const [, mm, dd, yy, hh, min, ss] = match;
+                return `${yy}${mm}${dd}${hh}${min}${ss}`;
+            };
+            return parseTs(a).localeCompare(parseTs(b));
+        }
+
+        /**
+         * Update the UI to show accumulator status
+         */
+        function updateLogAccumulatorStatus() {
+            const statusEl = document.getElementById('logAccumulatorStatus');
+            if (statusEl) {
+                const count = logAccumulator.entries.length;
+                const sessionDuration = logAccumulator.sessionStart
+                    ? Math.floor((Date.now() - logAccumulator.sessionStart.getTime()) / 60000)
+                    : 0;
+                statusEl.textContent = `${count.toLocaleString()} entries (${sessionDuration}m)`;
+            }
+        }
+
+        /**
+         * Get all accumulated logs as a single text string
+         */
+        function getAccumulatedLogsText() {
+            return logAccumulator.entries.join('\n');
+        }
+
+        /**
+         * Redact sensitive information (SSIDs, IP addresses) from log text
+         * Used only when downloading logs to protect user privacy
+         */
+        function redactSensitiveInfo(text) {
+            let result = text;
+            // Redact WiFi SSIDs
+            result = result.replace(/Connecting to WiFi: .+$/gm, 'Connecting to WiFi: <hidden>');
+            result = result.replace(/Reconnecting to WiFi: .+$/gm, 'Reconnecting to WiFi: <hidden>');
+            result = result.replace(/WiFi: [^\n]+/g, 'WiFi: <hidden>');
+            // Redact IP addresses in common log patterns
+            result = result.replace(/IP Address: [\d.]+/g, 'IP Address: <hidden>');
+            result = result.replace(/AP IP Address: [\d.]+/g, 'AP IP Address: <hidden>');
+            result = result.replace(/Elegoo CC @ [\d.]+/g, 'Elegoo CC @ <hidden>');
+            result = result.replace(/Discovery reply from [\d.]+/g, 'Discovery reply from <hidden>');
+            result = result.replace(/probe to [\d.]+/g, 'probe to <hidden>');
+            // Redact ssid and elegooip in JSON settings snapshots
+            result = result.replace(/"ssid":"[^"]*"/g, '"ssid":"<hidden>"');
+            result = result.replace(/"elegooip":"[^"]*"/g, '"elegooip":"<hidden>"');
+            return result;
+        }
+
         async function loadLogs() {
             try {
                 const response = await fetch('/api/logs_live');
                 const text = await response.text();
 
+                // Split by newlines (handle both \n and \r\n) and filter empty lines
+                const logs = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+
+                // Accumulate new entries into browser-side storage
+                accumulateLogs(logs);
+
+                // Display from accumulator (show most recent entries)
                 const container = document.getElementById('logContainer');
                 container.innerHTML = '';
 
-                // Split by newlines and filter empty lines
-                const logs = text.split('\n').filter(line => line.trim().length > 0);
+                const displayLimit = 200;
+                const displayLogs = logAccumulator.entries.slice(-displayLimit);
 
-                if (logs.length > 0) {
-                    logs.forEach(log => {
+                if (displayLogs.length > 0) {
+                    displayLogs.forEach(log => {
                         const entry = document.createElement('div');
                         entry.className = 'log-entry';
 
@@ -1742,8 +2258,15 @@
 
         async function downloadLogs() {
             try {
-                const response = await fetch('/api/logs_text');
-                const text = await response.text();
+                // Export from browser-side accumulator instead of fetching from ESP32
+                // Redact sensitive info (SSIDs, IPs) so users can safely share logs
+                const text = redactSensitiveInfo(getAccumulatedLogsText());
+
+                if (text.length === 0) {
+                    showToast('No logs to download', 'warning');
+                    return;
+                }
+
                 const blob = new Blob([text], { type: 'text/plain' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -1751,7 +2274,9 @@
                 a.download = `logs_${new Date().toISOString()}.txt`;
                 a.click();
                 window.URL.revokeObjectURL(url);
-                showToast('Logs downloaded', 'success');
+
+                const count = logAccumulator.entries.length;
+                showToast(`Downloaded ${count.toLocaleString()} log entries`, 'success');
             } catch (error) {
                 showToast('Failed to download logs: ' + error.message, 'error');
             }
@@ -1760,7 +2285,14 @@
         function clearLogsDisplay() {
             const container = document.getElementById('logContainer');
             container.innerHTML = '<div class="log-entry info">Display cleared. Logs will refresh automatically.</div>';
-            showToast('Display cleared', 'info');
+            showToast('Display cleared (accumulated logs preserved)', 'info');
+        }
+
+        function clearAccumulatedLogs() {
+            initLogAccumulator();
+            const container = document.getElementById('logContainer');
+            container.innerHTML = '<div class="log-entry info">Accumulator reset. Fresh collection started.</div>';
+            showToast('Log accumulator reset', 'info');
         }
 
         // Update Page (Lite OTA helper)
@@ -1792,17 +2324,15 @@
                 const data = await response.json();
 
                 document.getElementById('firmwareVersion').textContent = data.firmware_version || 'Unknown';
-                const buildInfo = data.build_date ? `${data.build_date} ${data.build_time || ''}`.trim() : 'Unknown';
-                document.getElementById('buildDate').textContent = buildInfo;
-                document.getElementById('firmwareThumbprint').textContent = data.firmware_thumbprint || 'Unknown';
-                document.getElementById('filesystemThumbprint').textContent = data.filesystem_thumbprint || 'Unknown';
+                document.getElementById('firmwareThumbprint').textContent = formatThumbprint(data.firmware_thumbprint);
+                document.getElementById('filesystemThumbprint').textContent = formatThumbprint(data.filesystem_thumbprint);
+                document.getElementById('buildVersion').textContent = 'v' + (data.build_version || '0.0.0');
+                document.getElementById('chipModel').textContent = data.chip_family || 'Unknown';
 
                 const statusResponse = await fetch('/sensor_status');
                 const statusData = await statusResponse.json();
 
                 document.getElementById('macAddress').textContent = statusData.mac || 'Unknown';
-                document.getElementById('freeHeap').textContent = formatBytes(statusData.free_heap || 0);
-                document.getElementById('wifiStatus').textContent = statusData.rssi ? 'Connected' : 'Disconnected';
                 document.getElementById('ipAddress').textContent = statusData.ip || 'Unknown';
 
             } catch (error) {
@@ -1810,18 +2340,26 @@
             }
         }
 
-        // Utility functions
-        function formatBytes(bytes) {
-            if (bytes === 0) return '0 B';
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+        // Format thumbprint from MMDDYYHHMMSS to MM.DD.YY-HH:MM
+        function formatThumbprint(thumbprint) {
+            if (!thumbprint || thumbprint === 'unknown' || thumbprint.length !== 12) {
+                return thumbprint || 'Unknown';
+            }
+            const mm = thumbprint.substring(0, 2);
+            const dd = thumbprint.substring(2, 4);
+            const yy = thumbprint.substring(4, 6);
+            const hh = thumbprint.substring(6, 8);
+            const min = thumbprint.substring(8, 10);
+            return `${mm}.${dd}.${yy}-${hh}:${min}`;
         }
 
         // Initialize
         function isStatusPageActive() {
             return document.getElementById('status')?.classList.contains('active');
+        }
+
+        function isDebugPageActive() {
+            return document.getElementById('debug')?.classList.contains('active');
         }
 
         function handleStatusEvent(event) {
@@ -1859,6 +2397,7 @@
         }
 
         window.addEventListener('load', () => {
+            initLogAccumulator();  // Start browser-side log accumulation
             switchPage('status');
             initLiteOtaUploader();
             initStatusCardReset();

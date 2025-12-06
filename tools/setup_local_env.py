@@ -140,7 +140,7 @@ def main():
     print(f"  python tools/build_local.py")
     print()
     print("To specify a board:")
-    print(f"  python tools/build_local.py --env seeed_xiao_esp32c3-dev")
+    print(f"  python tools/build_local.py --env seeed_esp32c3")
     print()
     print("To clean up everything:")
     if os.name == "nt":

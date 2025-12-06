@@ -1,0 +1,240 @@
+﻿=== Log capture started at 12/01/2025 17:18:41 ===
+12.01.25-22:18:01 ESP SFS System starting up...
+12.01.25-22:18:01 Firmware version: dev
+12.01.25-22:18:01 Chip family: Unknown
+12.01.25-22:18:01 Build timestamp (UTC compile time): Dec 01 2025 15:56:32
+12.01.25-22:18:01 Filesystem initialized
+12.01.25-22:18:01 Filesystem usage: total=1572864 bytes, used=57344 bytes
+12.01.25-22:18:01 Settings Manager Loaded
+12.01.25-22:18:01 Settings snapshot: {"ap_mode":false,"ssid":"CRS234_2","elegooip":"1.1.1.1","pause_on_runout":true,"start_print_timeout":15000,"enabled":true,"has_connected":false,"detection_grace_period_ms":10000,"detection_ratio_threshold":0.600000024,"detection_hard_ja
+12.01.25-22:24:42 Print start candidate found (prev=0 new=18)
+12.01.25-22:24:42 Flow debug: SDCP status print=18 layer=0/0 progress=0 expected=0.00mm delta=0.00mm telemetry=1
+12.01.25-22:24:42 Flow debug: SDCP status print=18 layer=0/1 progress=8 expected=0.00mm delta=0.00mm telemetry=1
+12.01.25-22:24:43 Flow debug: SDCP status print=1 layer=0/1 progress=8 expected=0.00mm delta=0.00mm telemetry=1
+12.01.25-22:24:54 Flow debug: SDCP status print=21 layer=0/1 progress=8 expected=0.00mm delta=0.00mm telemetry=1
+12.01.25-22:24:58 Flow debug: SDCP status print=1 layer=0/1 progress=8 expected=0.00mm delta=0.00mm telemetry=1
+12.01.25-22:25:01 Heap: free=164692 min=121572 maxAlloc=151540 frag=8.0%
+12.01.25-22:25:18 Flow debug: SDCP status print=21 layer=0/1 progress=8 expected=0.00mm delta=0.00mm telemetry=1
+12.01.25-22:25:21 Flow debug: SDCP status print=16 layer=0/1 progress=9 expected=0.00mm delta=0.00mm telemetry=1
+12.01.25-22:25:37 PRINTING entered without full prep sequence (prev=16 new=13), deferring new-print detection
+12.01.25-22:25:37 Flow debug: SDCP status print=13 layer=1/1 progress=10 expected=3.05mm delta=0.00mm telemetry=1
+12.01.25-22:25:37 Debug: sdcp_exp=3.05mm cumul_sns=0.00mm pulses=0 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=166256
+12.01.25-22:25:38 Debug: sdcp_exp=4.67mm cumul_sns=0.00mm pulses=0 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=167064
+12.01.25-22:25:39 Debug: sdcp_exp=6.10mm cumul_sns=0.00mm pulses=0 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=167064
+12.01.25-22:25:40 Debug: sdcp_exp=6.49mm cumul_sns=0.00mm pulses=0 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=167112
+12.01.25-22:25:41 Debug: sdcp_exp=6.49mm cumul_sns=3.02mm pulses=1 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=167064
+12.01.25-22:25:41 Debug: sdcp_exp=7.45mm cumul_sns=3.02mm pulses=1 | win_exp=0.96 win_sns=0.00 deficit=0.96 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=165992
+12.01.25-22:25:42 Debug: sdcp_exp=7.45mm cumul_sns=3.02mm pulses=1 | win_exp=0.96 win_sns=0.00 deficit=0.96 | jam=0 hard=0.00 soft=0.00 pass=0.00 grace=0 heap=164736
+12.01.25-22:25:42 Debug: sdcp_exp=8.47mm cumul_sns=3.02mm pulses=1 | win_exp=1.99 win_sns=0.00 deficit=1.99 | jam=0 hard=0.00 soft=0.00 pass=0.00 grace=0 heap=165992
+12.01.25-22:25:43 Debug: sdcp_exp=8.47mm cumul_sns=3.02mm pulses=1 | win_exp=1.99 win_sns=0.00 deficit=1.99 | jam=0 hard=0.00 soft=0.00 pass=0.00 grace=0 heap=167112
+12.01.25-22:25:43 Debug: sdcp_exp=8.89mm cumul_sns=6.03mm pulses=2 | win_exp=2.40 win_sns=3.02 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.50 grace=0 heap=165996
+12.01.25-22:25:43 Debug: sdcp_exp=9.83mm cumul_sns=6.03mm pulses=2 | win_exp=3.34 win_sns=3.02 deficit=0.32 | jam=0 hard=0.00 soft=0.00 pass=1.25 grace=0 heap=165996
+12.01.25-22:25:44 Debug: sdcp_exp=9.83mm cumul_sns=6.03mm pulses=2 | win_exp=3.34 win_sns=3.02 deficit=0.32 | jam=0 hard=0.00 soft=0.00 pass=0.90 grace=0 heap=167112
+12.01.25-22:25:44 Debug: sdcp_exp=10.89mm cumul_sns=6.03mm pulses=2 | win_exp=4.41 win_sns=3.02 deficit=1.39 | jam=0 hard=0.00 soft=0.00 pass=0.90 grace=0 heap=165576
+12.01.25-22:25:44 Debug: sdcp_exp=12.10mm cumul_sns=6.03mm pulses=2 | win_exp=5.61 win_sns=3.02 deficit=2.59 | jam=0 hard=0.00 soft=0.00 pass=0.68 grace=0 heap=165992
+12.01.25-22:25:45 Debug: sdcp_exp=12.10mm cumul_sns=6.03mm pulses=2 | win_exp=5.61 win_sns=3.02 deficit=2.59 | jam=0 hard=0.00 soft=0.00 pass=0.54 grace=0 heap=167064
+12.01.25-22:25:45 Debug: sdcp_exp=13.43mm cumul_sns=6.03mm pulses=2 | win_exp=6.94 win_sns=3.02 deficit=3.93 | jam=0 hard=0.00 soft=0.00 pass=0.54 grace=0 heap=165992
+12.01.25-22:25:46 Debug: sdcp_exp=13.43mm cumul_sns=9.05mm pulses=3 | win_exp=6.94 win_sns=6.03 deficit=0.91 | jam=0 hard=0.00 soft=0.00 pass=0.87 grace=0 heap=158252
+12.01.25-22:25:46 Debug: sdcp_exp=13.43mm cumul_sns=9.05mm pulses=3 | win_exp=6.94 win_sns=6.03 deficit=0.91 | jam=0 hard=0.00 soft=0.00 pass=0.87 grace=0 heap=167064
+12.01.25-22:25:46 Debug: sdcp_exp=14.90mm cumul_sns=9.05mm pulses=3 | win_exp=8.41 win_sns=6.03 deficit=2.38 | jam=0 hard=0.00 soft=0.00 pass=0.87 grace=0 heap=165996
+12.01.25-22:25:46 Debug: sdcp_exp=16.50mm cumul_sns=9.05mm pulses=3 | win_exp=9.06 win_sns=6.03 deficit=3.03 | jam=0 hard=0.00 soft=0.00 pass=0.81 grace=0 heap=165992
+12.01.25-22:25:47 Debug: sdcp_exp=16.50mm cumul_sns=9.05mm pulses=3 | win_exp=9.06 win_sns=6.03 deficit=3.03 | jam=0 hard=0.00 soft=0.00 pass=0.67 grace=0 heap=167064
+12.01.25-22:25:47 Debug: sdcp_exp=16.50mm cumul_sns=9.05mm pulses=3 | win_exp=8.03 win_sns=3.02 deficit=5.01 | jam=0 hard=0.00 soft=2.29 pass=0.38 grace=0 heap=161720
+12.01.25-22:25:47 Debug: sdcp_exp=16.53mm cumul_sns=12.06mm pulses=4 | win_exp=8.05 win_sns=6.03 deficit=2.02 | jam=0 hard=0.00 soft=0.00 pass=0.75 grace=0 heap=165992
+12.01.25-22:25:47 Debug: sdcp_exp=18.24mm cumul_sns=12.06mm pulses=4 | win_exp=9.77 win_sns=6.03 deficit=3.74 | jam=0 hard=0.00 soft=0.00 pass=0.75 grace=0 heap=165780
+12.01.25-22:25:48 Debug: sdcp_exp=18.24mm cumul_sns=12.06mm pulses=4 | win_exp=9.77 win_sns=6.03 deficit=3.74 | jam=0 hard=0.00 soft=0.00 pass=0.62 grace=0 heap=167112
+12.01.25-22:25:48 Debug: sdcp_exp=18.24mm cumul_sns=12.06mm pulses=4 | win_exp=9.35 win_sns=6.03 deficit=3.32 | jam=0 hard=0.00 soft=0.00 pass=0.65 grace=0 heap=166008
+12.01.25-22:25:48 Debug: sdcp_exp=20.11mm cumul_sns=12.06mm pulses=4 | win_exp=10.28 win_sns=6.03 deficit=4.25 | jam=0 hard=0.00 soft=0.00 pass=0.72 grace=0 heap=165984
+12.01.25-22:25:49 Debug: sdcp_exp=20.11mm cumul_sns=15.08mm pulses=5 | win_exp=10.28 win_sns=9.05 deficit=1.24 | jam=0 hard=0.00 soft=0.00 pass=0.88 grace=0 heap=167064
+12.01.25-22:25:49 Debug: sdcp_exp=20.11mm cumul_sns=15.08mm pulses=5 | win_exp=9.21 win_sns=9.05 deficit=0.17 | jam=0 hard=0.00 soft=0.00 pass=0.98 grace=0 heap=163644
+12.01.25-22:25:49 Debug: sdcp_exp=21.09mm cumul_sns=15.08mm pulses=5 | win_exp=10.20 win_sns=9.05 deficit=1.15 | jam=0 hard=0.00 soft=0.00 pass=0.98 grace=0 heap=161904
+12.01.25-22:25:50 Debug: sdcp_exp=22.11mm cumul_sns=15.08mm pulses=5 | win_exp=10.02 win_sns=9.05 deficit=0.97 | jam=0 hard=0.00 soft=0.00 pass=1.01 grace=0 heap=133280
+12.01.25-22:25:50 Debug: sdcp_exp=22.11mm cumul_sns=15.08mm pulses=5 | win_exp=10.02 win_sns=9.05 deficit=0.97 | jam=0 hard=0.00 soft=0.00 pass=0.90 grace=0 heap=167064
+12.01.25-22:25:50 Debug: sdcp_exp=23.16mm cumul_sns=15.08mm pulses=5 | win_exp=11.07 win_sns=9.05 deficit=2.02 | jam=0 hard=0.00 soft=0.00 pass=0.90 grace=0 heap=165576
+12.01.25-22:25:50 Debug: sdcp_exp=23.16mm cumul_sns=15.08mm pulses=5 | win_exp=9.73 win_sns=6.03 deficit=3.70 | jam=0 hard=0.00 soft=0.00 pass=0.62 grace=0 heap=166008
+12.01.25-22:25:50 Debug: sdcp_exp=23.16mm cumul_sns=18.09mm pulses=6 | win_exp=9.73 win_sns=9.05 deficit=0.69 | jam=0 hard=0.00 soft=0.00 pass=0.93 grace=0 heap=165800
+12.01.25-22:25:50 Debug: sdcp_exp=24.25mm cumul_sns=18.09mm pulses=6 | win_exp=10.82 win_sns=9.05 deficit=1.77 | jam=0 hard=0.00 soft=0.00 pass=0.93 grace=0 heap=165992
+12.01.25-22:25:51 Debug: sdcp_exp=24.25mm cumul_sns=18.09mm pulses=6 | win_exp=10.82 win_sns=9.05 deficit=1.77 | jam=0 hard=0.00 soft=0.00 pass=0.84 grace=0 heap=164064
+12.01.25-22:25:51 Debug: sdcp_exp=25.37mm cumul_sns=18.09mm pulses=6 | win_exp=10.47 win_sns=9.05 deficit=1.42 | jam=0 hard=0.00 soft=0.00 pass=0.97 grace=0 heap=165784
+12.01.25-22:25:52 Debug: sdcp_exp=25.37mm cumul_sns=21.10mm pulses=7 | win_exp=8.86 win_sns=9.05 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.02 grace=0 heap=158428
+12.01.25-22:25:52 Debug: sdcp_exp=26.52mm cumul_sns=21.10mm pulses=7 | win_exp=10.02 win_sns=9.05 deficit=0.97 | jam=0 hard=0.00 soft=0.00 pass=1.02 grace=0 heap=163676
+12.01.25-22:25:52 Debug: sdcp_exp=27.70mm cumul_sns=21.10mm pulses=7 | win_exp=11.20 win_sns=9.05 deficit=2.16 | jam=0 hard=0.00 soft=0.00 pass=0.90 grace=0 heap=165796
+12.01.25-22:25:52 Debug: sdcp_exp=27.70mm cumul_sns=21.10mm pulses=7 | win_exp=11.18 win_sns=9.05 deficit=2.13 | jam=0 hard=0.00 soft=0.00 pass=0.81 grace=0 heap=165596
+12.01.25-22:25:52 Debug: sdcp_exp=28.92mm cumul_sns=21.10mm pulses=7 | win_exp=10.68 win_sns=9.05 deficit=1.64 | jam=0 hard=0.00 soft=0.00 pass=0.96 grace=0 heap=165996
+12.01.25-22:25:53 Debug: sdcp_exp=28.92mm cumul_sns=21.10mm pulses=7 | win_exp=10.68 win_sns=9.05 deficit=1.64 | jam=0 hard=0.00 soft=0.00 pass=0.85 grace=0 heap=167068
+12.01.25-22:25:53 Debug: sdcp_exp=30.17mm cumul_sns=21.10mm pulses=7 | win_exp=11.93 win_sns=9.05 deficit=2.89 | jam=0 hard=0.00 soft=0.00 pass=0.85 grace=0 heap=139488
+12.01.25-22:25:53 Debug: sdcp_exp=30.17mm cumul_sns=24.12mm pulses=8 | win_exp=11.93 win_sns=12.06 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.01 grace=0 heap=163160
+12.01.25-22:25:53 Debug: sdcp_exp=30.17mm cumul_sns=24.12mm pulses=8 | win_exp=10.07 win_sns=9.05 deficit=1.02 | jam=0 hard=0.00 soft=0.00 pass=0.90 grace=0 heap=166020
+12.01.25-22:25:53 Debug: sdcp_exp=31.46mm cumul_sns=24.12mm pulses=8 | win_exp=11.35 win_sns=9.05 deficit=2.31 | jam=0 hard=0.00 soft=0.00 pass=0.90 grace=0 heap=165796
+12.01.25-22:25:54 Debug: sdcp_exp=31.46mm cumul_sns=24.12mm pulses=8 | win_exp=11.35 win_sns=9.05 deficit=2.31 | jam=0 hard=0.00 soft=0.00 pass=0.80 grace=0 heap=167076
+12.01.25-22:25:54 Debug: sdcp_exp=32.78mm cumul_sns=24.12mm pulses=8 | win_exp=12.67 win_sns=9.05 deficit=3.62 | jam=0 hard=0.00 soft=0.00 pass=0.80 grace=0 heap=165996
+12.01.25-22:25:54 Debug: sdcp_exp=32.78mm cumul_sns=24.12mm pulses=8 | win_exp=11.68 win_sns=9.05 deficit=2.64 | jam=0 hard=0.00 soft=0.00 pass=0.77 grace=0 heap=166020
+12.01.25-22:25:55 Debug: sdcp_exp=32.78mm cumul_sns=27.13mm pulses=9 | win_exp=10.67 win_sns=12.06 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.13 grace=0 heap=167076
+12.01.25-22:25:55 Debug: sdcp_exp=34.13mm cumul_sns=27.13mm pulses=9 | win_exp=12.02 win_sns=12.06 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.13 grace=0 heap=166020
+12.01.25-22:25:55 Debug: sdcp_exp=34.13mm cumul_sns=27.13mm pulses=9 | win_exp=10.97 win_sns=9.05 deficit=1.92 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=164444
+12.01.25-22:25:55 Debug: sdcp_exp=35.51mm cumul_sns=27.13mm pulses=9 | win_exp=12.35 win_sns=9.05 deficit=3.31 | jam=0 hard=0.00 soft=0.00 pass=0.82 grace=0 heap=139064
+12.01.25-22:25:56 Debug: sdcp_exp=36.93mm cumul_sns=27.13mm pulses=9 | win_exp=12.69 win_sns=9.05 deficit=3.64 | jam=0 hard=0.00 soft=0.00 pass=0.80 grace=0 heap=165796
+12.01.25-22:25:56 Debug: sdcp_exp=36.93mm cumul_sns=27.13mm pulses=9 | win_exp=12.69 win_sns=9.05 deficit=3.64 | jam=0 hard=0.00 soft=0.00 pass=0.71 grace=0 heap=167076
+12.01.25-22:25:56 Debug: sdcp_exp=36.93mm cumul_sns=30.15mm pulses=10 | win_exp=12.69 win_sns=12.06 deficit=0.63 | jam=0 hard=0.00 soft=0.00 pass=0.95 grace=0 heap=165604
+12.01.25-22:25:56 Debug: sdcp_exp=38.39mm cumul_sns=30.15mm pulses=10 | win_exp=13.02 win_sns=9.05 deficit=3.97 | jam=0 hard=0.00 soft=0.00 pass=0.78 grace=0 heap=165216
+12.01.25-22:25:57 Debug: sdcp_exp=38.39mm cumul_sns=30.15mm pulses=10 | win_exp=13.02 win_sns=9.05 deficit=3.97 | jam=0 hard=0.00 soft=0.00 pass=0.69 grace=0 heap=165500
+12.01.25-22:25:57 Debug: sdcp_exp=39.87mm cumul_sns=30.15mm pulses=10 | win_exp=13.35 win_sns=9.05 deficit=4.31 | jam=0 hard=0.00 soft=0.00 pass=0.76 grace=0 heap=166004
+12.01.25-22:25:57 Debug: sdcp_exp=39.87mm cumul_sns=30.15mm pulses=10 | win_exp=12.17 win_sns=9.05 deficit=3.12 | jam=0 hard=0.00 soft=0.00 pass=0.74 grace=0 heap=164020
+12.01.25-22:25:57 Debug: sdcp_exp=41.39mm cumul_sns=33.16mm pulses=11 | win_exp=13.69 win_sns=12.06 deficit=1.63 | jam=0 hard=0.00 soft=0.00 pass=0.99 grace=0 heap=135696
+12.01.25-22:25:57 Debug: sdcp_exp=41.39mm cumul_sns=33.16mm pulses=11 | win_exp=12.47 win_sns=12.06 deficit=0.41 | jam=0 hard=0.00 soft=0.00 pass=0.97 grace=0 heap=166020
+12.01.25-22:25:58 Debug: sdcp_exp=41.39mm cumul_sns=33.16mm pulses=11 | win_exp=12.47 win_sns=12.06 deficit=0.41 | jam=0 hard=0.00 soft=0.00 pass=0.97 grace=0 heap=167076
+12.01.25-22:25:58 Debug: sdcp_exp=42.94mm cumul_sns=33.16mm pulses=11 | win_exp=14.02 win_sns=12.06 deficit=1.96 | jam=0 hard=0.00 soft=0.00 pass=0.97 grace=0 heap=166004
+12.01.25-22:25:58 Debug: sdcp_exp=42.94mm cumul_sns=33.16mm pulses=11 | win_exp=12.77 win_sns=9.05 deficit=3.72 | jam=0 hard=0.00 soft=0.00 pass=0.71 grace=0 heap=135716
+12.01.25-22:25:58 Debug: sdcp_exp=44.53mm cumul_sns=33.16mm pulses=11 | win_exp=13.07 win_sns=9.05 deficit=4.02 | jam=0 hard=0.00 soft=0.00 pass=0.79 grace=0 heap=166020
+12.01.25-22:25:59 Debug: sdcp_exp=44.53mm cumul_sns=33.16mm pulses=11 | win_exp=13.07 win_sns=9.05 deficit=4.02 | jam=0 hard=0.00 soft=0.00 pass=0.69 grace=0 heap=164528
+12.01.25-22:25:59 Debug: sdcp_exp=44.53mm cumul_sns=33.16mm pulses=11 | win_exp=11.75 win_sns=6.03 deficit=5.72 | jam=0 hard=0.00 soft=5.69 pass=0.51 grace=0 heap=166020
+12.01.25-22:25:59 Debug: sdcp_exp=46.15mm cumul_sns=33.16mm pulses=11 | win_exp=13.37 win_sns=6.03 deficit=7.34 | jam=0 hard=0.00 soft=16.37 pass=0.51 grace=0 heap=166004
+12.01.25-22:26:00 Debug: sdcp_exp=46.15mm cumul_sns=33.16mm pulses=11 | win_exp=13.37 win_sns=6.03 deficit=7.34 | jam=0 hard=0.00 soft=54.09 pass=0.45 grace=0 heap=167124
+12.01.25-22:26:00 Debug: sdcp_exp=47.80mm cumul_sns=33.16mm pulses=11 | win_exp=13.67 win_sns=6.03 deficit=7.64 | jam=0 hard=0.00 soft=55.38 pass=0.50 grace=0 heap=156536
+12.01.25-22:26:00 Debug: sdcp_exp=49.49mm cumul_sns=33.16mm pulses=11 | win_exp=13.97 win_sns=6.03 deficit=7.94 | jam=0 hard=0.00 soft=92.94 pass=0.49 grace=0 heap=166004
+12.01.25-22:26:00 Filament jam detected (soft)! win_exp=13.97 win_sns=6.03 deficit=7.94 rate_exp=2.922 rate_sns=1.261 pass=0.43
+12.01.25-22:26:00 Pause condition: 1
+12.01.25-22:26:00 Filament runout: 0
+12.01.25-22:26:00 Filament runout pause enabled: 1
+12.01.25-22:26:00 Filament stopped: 1
+12.01.25-22:26:00 Time since print start 184846
+12.01.25-22:26:00 Is Machine status printing?: 1
+12.01.25-22:26:00 Print status: 13
+12.01.25-22:26:00 Flow state: expected=49.49mm actual=33.16mm deficit=7.94mm pass_ratio=0.43 pulses=11
+12.01.25-22:26:00 Pausing print, detected filament runout or stopped
+12.01.25-22:26:00 Pause command sent to printer
+12.01.25-22:26:00 Waiting for acknowledgment for command 129 with request ID 59302c65cd0241a78bd6cef76cbbac68
+12.01.25-22:26:01 Debug: sdcp_exp=49.49mm cumul_sns=33.16mm pulses=11 | win_exp=12.55 win_sns=3.02 deficit=9.54 | jam=1 hard=0.00 soft=100.00 pass=0.24 grace=0 heap=167124
+12.01.25-22:26:01 Received acknowledgment for command 129 (Ack: 0)
+12.01.25-22:26:01 Debug: sdcp_exp=51.21mm cumul_sns=33.16mm pulses=11 | win_exp=14.27 win_sns=3.02 deficit=11.26 | jam=1 hard=0.00 soft=100.00 pass=0.24 grace=0 heap=166012
+12.01.25-22:26:01 Heap: free=163008 min=121416 maxAlloc=147444 frag=9.5%
+12.01.25-22:26:01 Debug: sdcp_exp=51.21mm cumul_sns=33.16mm pulses=11 | win_exp=12.82 win_sns=3.02 deficit=9.80 | jam=1 hard=0.00 soft=100.00 pass=0.24 grace=0 heap=166020
+12.01.25-22:26:02 Debug: sdcp_exp=51.21mm cumul_sns=33.16mm pulses=11 | win_exp=12.82 win_sns=3.02 deficit=9.80 | jam=1 hard=0.00 soft=100.00 pass=0.24 grace=0 heap=167076
+12.01.25-22:26:02 Print status changed to paused
+12.01.25-22:26:02 Freezing filament tracking while paused after jam
+12.01.25-22:26:02 Debug: sdcp_exp=49.21mm cumul_sns=33.16mm pulses=11 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=1 hard=0.00 soft=100.00 pass=0.24 grace=0 heap=166020
+12.01.25-22:26:02 Flow debug: SDCP status print=5 layer=1/1 progress=21 expected=49.21mm delta=0.00mm telemetry=1
+12.01.25-22:26:09 Print start candidate cleared due to rest status 6
+12.01.25-22:26:09 Flow debug: SDCP status print=6 layer=1/1 progress=21 expected=49.21mm delta=0.00mm telemetry=1
+12.01.25-22:26:15 Print start candidate found (prev=6 new=20)
+12.01.25-22:26:15 Flow debug: SDCP status print=20 layer=1/1 progress=21 expected=49.21mm delta=0.00mm telemetry=1
+12.01.25-22:26:41 Print status changed to printing (resume)
+12.01.25-22:26:41 Motion sensor reset (resume after pause)
+12.01.25-22:26:41 Post-resume grace active until movement detected
+12.01.25-22:26:41 Flow debug: SDCP status print=13 layer=1/1 progress=22 expected=58.30mm delta=0.00mm telemetry=1
+12.01.25-22:26:41 Debug: sdcp_exp=58.30mm cumul_sns=33.16mm pulses=11 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=1 heap=166712
+12.01.25-22:26:41 Debug: sdcp_exp=60.22mm cumul_sns=36.18mm pulses=12 | win_exp=1.92 win_sns=0.00 deficit=1.92 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=1 heap=166004
+12.01.25-22:26:42 Debug: sdcp_exp=62.18mm cumul_sns=36.18mm pulses=12 | win_exp=3.87 win_sns=0.00 deficit=3.87 | jam=0 hard=0.00 soft=0.00 pass=0.00 grace=1 heap=164428
+12.01.25-22:26:42 Debug: sdcp_exp=62.18mm cumul_sns=36.18mm pulses=12 | win_exp=3.87 win_sns=0.00 deficit=3.87 | jam=0 hard=0.00 soft=0.00 pass=0.00 grace=1 heap=167124
+12.01.25-22:26:42 Debug: sdcp_exp=64.16mm cumul_sns=39.19mm pulses=13 | win_exp=5.86 win_sns=3.02 deficit=2.84 | jam=0 hard=0.00 soft=0.00 pass=0.78 grace=1 heap=166004
+12.01.25-22:26:43 Debug: sdcp_exp=66.17mm cumul_sns=39.19mm pulses=13 | win_exp=7.87 win_sns=3.02 deficit=4.85 | jam=0 hard=0.00 soft=0.00 pass=0.51 grace=1 heap=165796
+12.01.25-22:26:43 Debug: sdcp_exp=66.17mm cumul_sns=42.21mm pulses=14 | win_exp=7.87 win_sns=6.03 deficit=1.84 | jam=0 hard=0.00 soft=0.00 pass=0.77 grace=1 heap=167076
+12.01.25-22:26:43 Debug: sdcp_exp=68.18mm cumul_sns=42.21mm pulses=14 | win_exp=9.87 win_sns=6.03 deficit=3.84 | jam=0 hard=0.00 soft=0.00 pass=0.77 grace=1 heap=166004
+12.01.25-22:26:44 Debug: sdcp_exp=70.18mm cumul_sns=42.21mm pulses=14 | win_exp=11.88 win_sns=6.03 deficit=5.85 | jam=0 hard=0.00 soft=0.00 pass=0.61 grace=1 heap=166004
+12.01.25-22:26:44 Debug: sdcp_exp=70.18mm cumul_sns=45.22mm pulses=15 | win_exp=11.88 win_sns=9.05 deficit=2.84 | jam=0 hard=0.00 soft=0.00 pass=0.76 grace=1 heap=126544
+12.01.25-22:26:44 Debug: sdcp_exp=70.18mm cumul_sns=45.22mm pulses=15 | win_exp=11.88 win_sns=9.05 deficit=2.84 | jam=0 hard=0.00 soft=0.00 pass=0.76 grace=1 heap=167072
+12.01.25-22:26:44 Debug: sdcp_exp=72.19mm cumul_sns=45.22mm pulses=15 | win_exp=13.89 win_sns=9.05 deficit=4.84 | jam=0 hard=0.00 soft=0.00 pass=0.76 grace=1 heap=166004
+12.01.25-22:26:45 Debug: sdcp_exp=72.19mm cumul_sns=48.24mm pulses=16 | win_exp=13.89 win_sns=12.06 deficit=1.83 | jam=0 hard=0.00 soft=0.00 pass=0.87 grace=0 heap=166020
+12.01.25-22:26:45 Debug: sdcp_exp=74.20mm cumul_sns=48.24mm pulses=16 | win_exp=15.90 win_sns=12.06 deficit=3.84 | jam=0 hard=0.00 soft=0.00 pass=0.87 grace=0 heap=159588
+12.01.25-22:26:45 Debug: sdcp_exp=74.20mm cumul_sns=48.24mm pulses=16 | win_exp=15.90 win_sns=12.06 deficit=3.84 | jam=0 hard=0.00 soft=0.00 pass=0.76 grace=0 heap=162608
+12.01.25-22:26:46 Debug: sdcp_exp=76.21mm cumul_sns=51.25mm pulses=17 | win_exp=17.90 win_sns=15.08 deficit=2.83 | jam=0 hard=0.00 soft=0.00 pass=0.95 grace=0 heap=166020
+12.01.25-22:26:46 Debug: sdcp_exp=78.21mm cumul_sns=51.25mm pulses=17 | win_exp=19.91 win_sns=15.08 deficit=4.84 | jam=0 hard=0.00 soft=0.00 pass=0.84 grace=0 heap=161900
+12.01.25-22:26:46 Debug: sdcp_exp=78.21mm cumul_sns=51.25mm pulses=17 | win_exp=19.91 win_sns=15.08 deficit=4.84 | jam=0 hard=0.00 soft=0.00 pass=0.76 grace=0 heap=144260
+12.01.25-22:26:47 Debug: sdcp_exp=80.22mm cumul_sns=51.25mm pulses=17 | win_exp=20.00 win_sns=15.08 deficit=4.92 | jam=0 hard=0.00 soft=0.00 pass=0.84 grace=0 heap=166004
+12.01.25-22:26:47 Debug: sdcp_exp=80.22mm cumul_sns=51.25mm pulses=17 | win_exp=18.05 win_sns=12.06 deficit=5.99 | jam=0 hard=0.00 soft=0.00 pass=0.67 grace=0 heap=165812
+12.01.25-22:26:47 Debug: sdcp_exp=80.22mm cumul_sns=51.25mm pulses=17 | win_exp=18.05 win_sns=12.06 deficit=5.99 | jam=0 hard=0.00 soft=0.00 pass=0.67 grace=0 heap=167124
+12.01.25-22:26:48 Debug: sdcp_exp=82.21mm cumul_sns=51.25mm pulses=17 | win_exp=18.05 win_sns=12.06 deficit=5.99 | jam=0 hard=0.00 soft=0.00 pass=0.75 grace=0 heap=166020
+12.01.25-22:26:48 Debug: sdcp_exp=84.16mm cumul_sns=51.25mm pulses=17 | win_exp=20.00 win_sns=12.06 deficit=7.94 | jam=0 hard=0.00 soft=0.00 pass=0.67 grace=0 heap=165996
+12.01.25-22:26:48 Debug: sdcp_exp=84.16mm cumul_sns=51.25mm pulses=17 | win_exp=17.99 win_sns=9.05 deficit=8.95 | jam=0 hard=0.00 soft=1.60 pass=0.50 grace=0 heap=166020
+12.01.25-22:26:48 Debug: sdcp_exp=84.16mm cumul_sns=51.25mm pulses=17 | win_exp=17.99 win_sns=9.05 deficit=8.95 | jam=0 hard=0.00 soft=18.18 pass=0.50 grace=0 heap=167076
+12.01.25-22:26:48 Debug: sdcp_exp=86.08mm cumul_sns=51.25mm pulses=17 | win_exp=19.91 win_sns=9.05 deficit=10.87 | jam=0 hard=0.00 soft=20.86 pass=0.50 grace=0 heap=165796
+12.01.25-22:26:48 Debug: sdcp_exp=86.08mm cumul_sns=51.25mm pulses=17 | win_exp=17.90 win_sns=9.05 deficit=8.86 | jam=0 hard=0.00 soft=35.90 pass=0.51 grace=0 heap=161544
+12.01.25-22:26:49 Debug: sdcp_exp=87.97mm cumul_sns=51.25mm pulses=17 | win_exp=19.79 win_sns=9.05 deficit=10.75 | jam=0 hard=0.00 soft=54.03 pass=0.51 grace=0 heap=166004
+12.01.25-22:26:49 Debug: sdcp_exp=87.97mm cumul_sns=51.25mm pulses=17 | win_exp=17.78 win_sns=6.03 deficit=11.75 | jam=0 hard=0.00 soft=72.59 pass=0.34 grace=0 heap=161924
+12.01.25-22:26:49 Debug: sdcp_exp=89.82mm cumul_sns=51.25mm pulses=17 | win_exp=19.64 win_sns=6.03 deficit=13.61 | jam=0 hard=0.00 soft=81.98 pass=0.34 grace=0 heap=166000
+12.01.25-22:26:49 Debug: sdcp_exp=89.82mm cumul_sns=51.25mm pulses=17 | win_exp=19.64 win_sns=6.03 deficit=13.61 | jam=0 hard=0.00 soft=83.14 pass=0.31 grace=0 heap=167072
+12.01.25-22:26:49 Filament jam detected (soft)! win_exp=19.64 win_sns=6.03 deficit=13.61 rate_exp=4.020 rate_sns=1.234 pass=0.31
+12.01.25-22:26:50 Debug: sdcp_exp=89.82mm cumul_sns=51.25mm pulses=17 | win_exp=17.63 win_sns=3.02 deficit=14.61 | jam=1 hard=0.00 soft=100.00 pass=0.17 grace=0 heap=166024
+12.01.25-22:26:50 Debug: sdcp_exp=91.64mm cumul_sns=51.25mm pulses=17 | win_exp=19.45 win_sns=3.02 deficit=16.43 | jam=1 hard=0.00 soft=100.00 pass=0.17 grace=0 heap=166004
+12.01.25-22:26:50 Debug: sdcp_exp=91.64mm cumul_sns=51.25mm pulses=17 | win_exp=17.44 win_sns=0.00 deficit=17.44 | jam=1 hard=10.97 soft=100.00 pass=0.00 grace=0 heap=166012
+12.01.25-22:26:50 Debug: sdcp_exp=91.64mm cumul_sns=51.25mm pulses=17 | win_exp=17.44 win_sns=0.00 deficit=17.44 | jam=1 hard=37.50 soft=100.00 pass=0.00 grace=0 heap=167124
+12.01.25-22:26:50 Debug: sdcp_exp=93.43mm cumul_sns=51.25mm pulses=17 | win_exp=19.23 win_sns=0.00 deficit=19.23 | jam=1 hard=67.13 soft=100.00 pass=0.00 grace=0 heap=165588
+12.01.25-22:26:51 Debug: sdcp_exp=95.18mm cumul_sns=51.25mm pulses=17 | win_exp=18.97 win_sns=0.00 deficit=18.97 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=166004
+12.01.25-22:26:51 Debug: sdcp_exp=95.18mm cumul_sns=51.25mm pulses=17 | win_exp=16.96 win_sns=0.00 deficit=16.96 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=163388
+12.01.25-22:26:51 Debug: sdcp_exp=95.18mm cumul_sns=51.25mm pulses=17 | win_exp=16.96 win_sns=0.00 deficit=16.96 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=167124
+12.01.25-22:26:51 Debug: sdcp_exp=96.90mm cumul_sns=51.25mm pulses=17 | win_exp=18.68 win_sns=0.00 deficit=18.68 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=166004
+12.01.25-22:26:52 Debug: sdcp_exp=98.58mm cumul_sns=51.25mm pulses=17 | win_exp=18.36 win_sns=0.00 deficit=18.36 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=166004
+12.01.25-22:26:52 Debug: sdcp_exp=100.24mm cumul_sns=51.25mm pulses=17 | win_exp=20.01 win_sns=0.00 deficit=20.01 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=166004
+12.01.25-22:26:52 Debug: sdcp_exp=100.24mm cumul_sns=51.25mm pulses=17 | win_exp=20.01 win_sns=0.00 deficit=20.01 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=167076
+12.01.25-22:26:52 Debug: sdcp_exp=101.85mm cumul_sns=51.25mm pulses=17 | win_exp=21.63 win_sns=0.00 deficit=21.63 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=165796
+12.01.25-22:26:53 Debug: sdcp_exp=101.85mm cumul_sns=51.25mm pulses=17 | win_exp=17.69 win_sns=0.00 deficit=17.69 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=166032
+12.01.25-22:26:53 Debug: sdcp_exp=103.44mm cumul_sns=51.25mm pulses=17 | win_exp=19.28 win_sns=0.00 deficit=19.28 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=163560
+12.01.25-22:26:53 Debug: sdcp_exp=103.44mm cumul_sns=51.25mm pulses=17 | win_exp=19.28 win_sns=0.00 deficit=19.28 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=167072
+12.01.25-22:26:53 Debug: sdcp_exp=103.44mm cumul_sns=51.25mm pulses=17 | win_exp=17.36 win_sns=0.00 deficit=17.36 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=166020
+12.01.25-22:26:54 Debug: sdcp_exp=104.99mm cumul_sns=51.25mm pulses=17 | win_exp=18.91 win_sns=0.00 deficit=18.91 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=165796
+12.01.25-22:26:54 Debug: sdcp_exp=106.51mm cumul_sns=51.25mm pulses=17 | win_exp=18.54 win_sns=0.00 deficit=18.54 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=165640
+12.01.25-22:26:54 Debug: sdcp_exp=106.51mm cumul_sns=51.25mm pulses=17 | win_exp=16.69 win_sns=0.00 deficit=16.69 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=167076
+12.01.25-22:26:54 Debug: sdcp_exp=108.00mm cumul_sns=51.25mm pulses=17 | win_exp=18.18 win_sns=0.00 deficit=18.18 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=166004
+12.01.25-22:26:55 Debug: sdcp_exp=109.45mm cumul_sns=51.25mm pulses=17 | win_exp=19.63 win_sns=0.00 deficit=19.63 | jam=1 hard=100.00 soft=100.00 pass=0.00 grace=0 heap=166016
+12.01.25-22:26:55 Debug: sdcp_exp=109.45mm cumul_sns=54.27mm pulses=18 | win_exp=17.81 win_sns=3.02 deficit=14.80 | jam=1 hard=100.00 soft=100.00 pass=0.17 grace=0 heap=166028
+12.01.25-22:26:55 Debug: sdcp_exp=110.87mm cumul_sns=54.27mm pulses=18 | win_exp=19.23 win_sns=3.02 deficit=16.21 | jam=1 hard=100.00 soft=100.00 pass=0.17 grace=0 heap=166016
+12.01.25-22:26:55 Debug: sdcp_exp=110.87mm cumul_sns=54.27mm pulses=18 | win_exp=19.23 win_sns=3.02 deficit=16.21 | jam=1 hard=100.00 soft=100.00 pass=0.16 grace=0 heap=167076
+12.01.25-22:26:55 Debug: sdcp_exp=110.87mm cumul_sns=57.28mm pulses=19 | win_exp=17.44 win_sns=6.03 deficit=11.41 | jam=1 hard=100.00 soft=100.00 pass=0.31 grace=0 heap=166020
+12.01.25-22:26:55 Debug: sdcp_exp=112.25mm cumul_sns=57.28mm pulses=19 | win_exp=18.83 win_sns=6.03 deficit=12.80 | jam=1 hard=100.00 soft=100.00 pass=0.35 grace=0 heap=166004
+12.01.25-22:26:56 Debug: sdcp_exp=113.61mm cumul_sns=57.28mm pulses=19 | win_exp=18.43 win_sns=6.03 deficit=12.40 | jam=1 hard=100.00 soft=100.00 pass=0.35 grace=0 heap=164228
+12.01.25-22:26:56 Debug: sdcp_exp=113.61mm cumul_sns=60.30mm pulses=20 | win_exp=18.43 win_sns=9.05 deficit=9.38 | jam=1 hard=100.00 soft=100.00 pass=0.49 grace=0 heap=166020
+12.01.25-22:26:56 Debug: sdcp_exp=113.61mm cumul_sns=60.30mm pulses=20 | win_exp=18.43 win_sns=9.05 deficit=9.38 | jam=1 hard=100.00 soft=100.00 pass=0.49 grace=0 heap=164996
+12.01.25-22:26:56 Debug: sdcp_exp=114.92mm cumul_sns=60.30mm pulses=20 | win_exp=19.75 win_sns=9.05 deficit=10.70 | jam=1 hard=100.00 soft=100.00 pass=0.49 grace=0 heap=163380
+12.01.25-22:26:57 Debug: sdcp_exp=116.21mm cumul_sns=60.30mm pulses=20 | win_exp=19.31 win_sns=9.05 deficit=10.27 | jam=1 hard=100.00 soft=100.00 pass=0.50 grace=0 heap=164440
+12.01.25-22:26:57 Debug: sdcp_exp=116.21mm cumul_sns=60.30mm pulses=20 | win_exp=17.63 win_sns=9.05 deficit=8.58 | jam=1 hard=100.00 soft=100.00 pass=0.51 grace=0 heap=166020
+12.01.25-22:26:57 Debug: sdcp_exp=116.21mm cumul_sns=63.31mm pulses=21 | win_exp=15.97 win_sns=12.06 deficit=3.91 | jam=0 hard=0.00 soft=0.00 pass=0.75 grace=0 heap=167072
+12.01.25-22:26:57 Debug: sdcp_exp=118.68mm cumul_sns=63.31mm pulses=21 | win_exp=18.44 win_sns=12.06 deficit=6.38 | jam=0 hard=0.00 soft=0.00 pass=0.75 grace=0 heap=166004
+12.01.25-22:26:58 Debug: sdcp_exp=119.87mm cumul_sns=63.31mm pulses=21 | win_exp=18.01 win_sns=12.06 deficit=5.95 | jam=0 hard=0.00 soft=0.00 pass=0.72 grace=0 heap=166004
+12.01.25-22:26:58 Debug: sdcp_exp=119.87mm cumul_sns=66.33mm pulses=22 | win_exp=18.01 win_sns=15.08 deficit=2.94 | jam=0 hard=0.00 soft=0.00 pass=0.84 grace=0 heap=165556
+12.01.25-22:26:58 Debug: sdcp_exp=121.02mm cumul_sns=66.33mm pulses=22 | win_exp=19.16 win_sns=15.08 deficit=4.09 | jam=0 hard=0.00 soft=0.00 pass=0.84 grace=0 heap=166004
+12.01.25-22:26:58 Debug: sdcp_exp=121.02mm cumul_sns=66.33mm pulses=22 | win_exp=17.58 win_sns=15.08 deficit=2.50 | jam=0 hard=0.00 soft=0.00 pass=0.86 grace=0 heap=143240
+12.01.25-22:26:58 Debug: sdcp_exp=121.02mm cumul_sns=66.33mm pulses=22 | win_exp=17.58 win_sns=15.08 deficit=2.50 | jam=0 hard=0.00 soft=0.00 pass=0.86 grace=0 heap=164996
+12.01.25-22:26:58 Debug: sdcp_exp=122.14mm cumul_sns=66.33mm pulses=22 | win_exp=18.70 win_sns=15.08 deficit=3.62 | jam=0 hard=0.00 soft=0.00 pass=0.86 grace=0 heap=165796
+12.01.25-22:26:59 Debug: sdcp_exp=123.22mm cumul_sns=69.34mm pulses=23 | win_exp=18.23 win_sns=18.09 deficit=0.14 | jam=0 hard=0.00 soft=0.00 pass=1.06 grace=0 heap=165804
+12.01.25-22:26:59 Debug: sdcp_exp=124.27mm cumul_sns=69.34mm pulses=23 | win_exp=17.76 win_sns=18.09 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.08 grace=0 heap=166012
+12.01.25-22:26:59 Debug: sdcp_exp=124.27mm cumul_sns=69.34mm pulses=23 | win_exp=17.76 win_sns=18.09 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.02 grace=0 heap=167076
+12.01.25-22:26:59 Debug: sdcp_exp=125.29mm cumul_sns=69.34mm pulses=23 | win_exp=18.78 win_sns=18.09 deficit=0.69 | jam=0 hard=0.00 soft=0.00 pass=1.02 grace=0 heap=137964
+12.01.25-22:26:59 Debug: sdcp_exp=126.28mm cumul_sns=72.36mm pulses=24 | win_exp=18.28 win_sns=21.10 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.22 grace=0 heap=165796
+12.01.25-22:27:00 Debug: sdcp_exp=127.25mm cumul_sns=72.36mm pulses=24 | win_exp=17.80 win_sns=18.09 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.08 grace=0 heap=166004
+12.01.25-22:27:00 Debug: sdcp_exp=129.03mm cumul_sns=72.36mm pulses=24 | win_exp=19.58 win_sns=18.09 deficit=1.49 | jam=0 hard=0.00 soft=0.00 pass=1.02 grace=0 heap=163208
+12.01.25-22:27:00 Debug: sdcp_exp=129.03mm cumul_sns=75.37mm pulses=25 | win_exp=18.16 win_sns=18.09 deficit=0.07 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=167124
+12.01.25-22:27:00 Debug: sdcp_exp=129.03mm cumul_sns=75.37mm pulses=25 | win_exp=18.16 win_sns=18.09 deficit=0.07 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=166020
+12.01.25-22:27:01 Debug: sdcp_exp=130.70mm cumul_sns=75.37mm pulses=25 | win_exp=18.44 win_sns=18.09 deficit=0.35 | jam=0 hard=0.00 soft=0.00 pass=1.08 grace=0 heap=166004
+12.01.25-22:27:01 Heap: free=163028 min=120460 maxAlloc=147444 frag=9.6%
+12.01.25-22:27:01 Debug: sdcp_exp=130.70mm cumul_sns=78.39mm pulses=26 | win_exp=17.09 win_sns=18.09 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.06 grace=0 heap=167124
+12.01.25-22:27:01 Debug: sdcp_exp=132.23mm cumul_sns=78.39mm pulses=26 | win_exp=18.63 win_sns=18.09 deficit=0.54 | jam=0 hard=0.00 soft=0.00 pass=1.06 grace=0 heap=130672
+12.01.25-22:27:01 Debug: sdcp_exp=133.64mm cumul_sns=78.39mm pulses=26 | win_exp=18.71 win_sns=18.09 deficit=0.62 | jam=0 hard=0.00 soft=0.00 pass=1.05 grace=0 heap=166004
+12.01.25-22:27:02 Debug: sdcp_exp=134.90mm cumul_sns=78.39mm pulses=26 | win_exp=18.70 win_sns=15.08 deficit=3.62 | jam=0 hard=0.00 soft=0.00 pass=0.87 grace=0 heap=163364
+12.01.25-22:27:02 Debug: sdcp_exp=134.90mm cumul_sns=78.39mm pulses=26 | win_exp=18.70 win_sns=15.08 deficit=3.62 | jam=0 hard=0.00 soft=0.00 pass=0.81 grace=0 heap=167076
+12.01.25-22:27:02 Debug: sdcp_exp=136.04mm cumul_sns=78.39mm pulses=26 | win_exp=19.83 win_sns=15.08 deficit=4.76 | jam=0 hard=0.00 soft=0.00 pass=0.81 grace=0 heap=166004
+12.01.25-22:27:02 Debug: sdcp_exp=136.04mm cumul_sns=78.39mm pulses=26 | win_exp=17.36 win_sns=15.08 deficit=2.28 | jam=0 hard=0.00 soft=0.00 pass=0.87 grace=0 heap=130388
+12.01.25-22:27:03 Debug: sdcp_exp=137.04mm cumul_sns=78.39mm pulses=26 | win_exp=17.18 win_sns=12.06 deficit=5.12 | jam=0 hard=0.00 soft=0.00 pass=0.75 grace=0 heap=166004
+12.01.25-22:27:03 Debug: sdcp_exp=138.29mm cumul_sns=78.39mm pulses=26 | win_exp=17.28 win_sns=12.06 deficit=5.22 | jam=0 hard=0.00 soft=0.00 pass=0.75 grace=0 heap=160512
+12.01.25-22:27:03 Debug: sdcp_exp=138.29mm cumul_sns=78.39mm pulses=26 | win_exp=17.28 win_sns=12.06 deficit=5.22 | jam=0 hard=0.00 soft=0.00 pass=0.70 grace=0 heap=167076
+12.01.25-22:27:03 Debug: sdcp_exp=139.27mm cumul_sns=78.39mm pulses=26 | win_exp=18.25 win_sns=12.06 deficit=6.19 | jam=0 hard=0.00 soft=0.00 pass=0.70 grace=0 heap=165796
+12.01.25-22:27:03 Debug: sdcp_exp=140.25mm cumul_sns=78.39mm pulses=26 | win_exp=18.11 win_sns=9.05 deficit=9.07 | jam=0 hard=0.00 soft=11.46 pass=0.53 grace=0 heap=165008
+12.01.25-22:27:04 Debug: sdcp_exp=140.25mm cumul_sns=78.39mm pulses=26 | win_exp=17.03 win_sns=9.05 deficit=7.98 | jam=0 hard=0.00 soft=27.67 pass=0.53 grace=0 heap=166020
+12.01.25-22:27:04 Debug: sdcp_exp=139.51mm cumul_sns=78.39mm pulses=26 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=45.13 pass=0.57 grace=0 heap=161916
+12.01.25-22:27:04 Debug: sdcp_exp=139.51mm cumul_sns=78.39mm pulses=26 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=164296
+12.01.25-22:27:05 Debug: sdcp_exp=139.51mm cumul_sns=78.39mm pulses=26 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=167124
+12.01.25-22:27:06 Debug: sdcp_exp=138.51mm cumul_sns=78.39mm pulses=26 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=167072
+12.01.25-22:27:07 Debug: sdcp_exp=138.51mm cumul_sns=78.39mm pulses=26 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=167072
+12.01.25-22:27:08 Debug: sdcp_exp=138.51mm cumul_sns=78.39mm pulses=26 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=167076
+12.01.25-22:27:09 Debug: sdcp_exp=138.51mm cumul_sns=78.39mm pulses=26 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=167072
+12.01.25-22:27:10 Debug: sdcp_exp=138.51mm cumul_sns=84.42mm pulses=28 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=133996
+12.01.25-22:27:11 Debug: sdcp_exp=138.51mm cumul_sns=84.42mm pulses=28 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=167076
+12.01.25-22:27:12 Debug: sdcp_exp=138.51mm cumul_sns=84.42mm pulses=28 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=167076
+12.01.25-22:27:13 Debug: sdcp_exp=138.51mm cumul_sns=84.42mm pulses=28 | win_exp=0.00 win_sns=0.00 deficit=0.00 | jam=0 hard=0.00 soft=0.00 pass=1.00 grace=0 heap=167124
+12.01.25-22:27:13 Print start candidate cleared due to rest status 9
+12.01.25-22:27:13 Print summary: status=9 progress=36 layer=1/1 ticks=64/73 expected=138.51mm actual=84.42mm deficit=54.09mm pulses=28
+12.01.25-22:27:13 Print left printing state, resetting filament tracking
+12.01.25-22:27:13 Filament tracking reset - Mode: Windowed
+12.01.25-22:27:13 Flow debug: SDCP status print=9 layer=1/1 progress=0 expected=138.51mm delta=0.00mm telemetry=1
+12.01.25-22:27:22 Flow debug: SDCP status print=0 layer=1/1 progress=0 expected=138.51mm delta=0.00mm telemetry=1
+12.01.25-22:28:01 Heap: free=166676 min=120460 maxAlloc=151540 frag=9.1%
+12.01.25-22:29:01 Heap: free=167556 min=120460 maxAlloc=151540 frag=9.6%

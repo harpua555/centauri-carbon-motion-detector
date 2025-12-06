@@ -1,14 +1,11 @@
 #include <Arduino.h>
-#include <ESPmDNS.h>
-#include <WiFi.h>
 
 #include "ElegooCC.h"
 #include "LittleFS.h"
 #include "Logger.h"
 #include "SettingsManager.h"
+#include "SystemServices.h"
 #include "WebServer.h"
-#include "improv.h"
-#include "time.h"
 
 #define SPIFFS LittleFS
 
@@ -17,234 +14,34 @@
 
 // Handle the case where environment variables are empty strings
 #ifndef FIRMWARE_VERSION_RAW
-#define FIRMWARE_VERSION_RAW dev
+#define FIRMWARE_VERSION_RAW "alpha"
 #endif
+
+// Build scripts now guarantee that CHIP_FAMILY_RAW is always set with valid values
 #ifndef CHIP_FAMILY_RAW
-#define CHIP_FAMILY_RAW Unknown
+#define CHIP_FAMILY_RAW "ESP32"
 #endif
 
-// Create a macro that checks if the stringified value is empty and uses fallback
-#define GET_VERSION_STRING(x, fallback) (strlen(TOSTRING(x)) == 0 ? fallback : TOSTRING(x))
+static const char* firmwareVersionRaw = FIRMWARE_VERSION_RAW;
+const char* firmwareVersion = (firmwareVersionRaw[0] != '\0') ? firmwareVersionRaw : "alpha";
 
-const char* firmwareVersion = GET_VERSION_STRING(FIRMWARE_VERSION_RAW, "dev");
-const char* chipFamily      = GET_VERSION_STRING(CHIP_FAMILY_RAW, "Unknown");
+// Use the CHIP_FAMILY_RAW if it expands to a non-empty string literal, otherwise fall back to the default.
+static const char* chipFamilyRaw = CHIP_FAMILY_RAW;
+const char* chipFamily = (chipFamilyRaw[0] != '\0') ? chipFamilyRaw : "ESP32";
+
+
+// Use BUILD_DATE and BUILD_TIME if available (set by build script), otherwise fall back to __DATE__ and __TIME__
+#ifdef BUILD_DATE
+const char* buildTimestamp  = BUILD_DATE " " BUILD_TIME;
+#else
 const char* buildTimestamp  = __DATE__ " " __TIME__;
-
-#define WIFI_CHECK_INTERVAL 30000     // Check WiFi every 30 seconds
-#define WIFI_RECONNECT_TIMEOUT 10000  // Wait 10 seconds for reconnection
-#define NTP_SYNC_INTERVAL 3600000     // Re-sync with NTP every hour (3600000 ms)
-
-// NTP server to request epoch time
-const char* ntpServer = "pool.ntp.org";
+#endif
 
 WebServer webServer(80);
 
-// Variables to track WiFi connection monitoring
-unsigned long lastWifiCheck      = 0;
-unsigned long wifiReconnectStart = 0;
-bool          isReconnecting     = false;
-
 // These things get setup in the loop, not setup, so we need to track if they've happened
-bool isWifiSetup      = false;
 bool isElegooSetup    = false;
 bool isWebServerSetup = false;
-bool isNtpSetup       = false;
-
-// Used by improv-wifi to parse serial data
-uint8_t x_buffer[16];
-uint8_t x_position = 0;
-
-// Variables to track NTP synchronization
-unsigned long lastNTPSyncAttempt = 0;
-
-// If wifi fails, revert to AP mode and restart (only if never connected before);
-void failWifi()
-{
-    // Only revert to AP mode if WiFi has never successfully connected
-    if (!settingsManager.getHasConnected())
-    {
-        settingsManager.setAPMode(true);
-        if (settingsManager.save())
-        {
-            logger.log("Failed to connect to wifi, reverted to AP mode (first connection attempt)");
-        }
-        else
-        {
-            logger.log("Failed to update settings");
-        }
-
-        delay(1000);  // Give time for serial output
-        ESP.restart();
-    }
-    else
-    {
-        logger.log("WiFi connection failed, retrying in 30 seconds");
-        // Don't restart, just continue trying to reconnect in checkWifiConnection()
-    }
-}
-
-void startAPMode()
-{
-    logger.log("Starting AP mode");
-    WiFi.softAP("CentauriFilament.local");
-    logger.logf("AP IP Address: %s", WiFi.softAPIP().toString().c_str());
-    // Start mDNS for AP mode
-    if (!MDNS.begin("centaurifilament"))
-    {
-        logger.log("Error setting up MDNS responder in AP mode!");
-    }
-}
-
-void handleSuccessfulWifiConnection()
-{
-    logger.log("WiFi Connected");
-    logger.logf("IP Address: %s", WiFi.localIP().toString().c_str());
-
-    // Mark that WiFi has successfully connected at least once
-    if (!settingsManager.getHasConnected())
-    {
-        settingsManager.setHasConnected(true);
-        settingsManager.save();
-        logger.log("First successful WiFi connection recorded");
-    }
-
-    // Reset any reconnection state
-    isReconnecting = false;
-
-    // Start/restart mDNS for station mode
-    MDNS.end();
-    if (!MDNS.begin("centaurifilament"))
-    {
-        logger.log("Error setting up MDNS responder!");
-    }
-}
-
-bool connectToWifiStation(bool isReconnect = false)
-{
-    const char* action = isReconnect ? "Reconnecting to" : "Connecting to";
-    logger.logf("%s WiFi: %s", action, settingsManager.getSSID().c_str());
-
-    WiFi.begin(settingsManager.getSSID().c_str(), settingsManager.getPassword().c_str());
-
-    int attempts = 0;
-    while (WiFi.status() != WL_CONNECTED && attempts < 30)
-    {
-        Serial.print('.');
-        delay(1000);
-        attempts++;
-    }
-
-    Serial.println();
-
-    if (WiFi.status() == WL_CONNECTED)
-    {
-        handleSuccessfulWifiConnection();
-        return true;
-    }
-    else
-    {
-        if (isReconnect)
-        {
-            logger.log("Failed to connect with new WiFi credentials");
-        }
-        else
-        {
-            failWifi();
-        }
-        return false;
-    }
-}
-
-void cleanupWifiConnections()
-{
-    // Stop AP mode if it was running
-    WiFi.softAPdisconnect(true);
-    // Disconnect from any existing station connection
-    WiFi.disconnect(true);
-    delay(1000);
-}
-
-bool wifiSetup()
-{
-    if (settingsManager.isAPMode())
-    {
-        startAPMode();
-        logger.log("Wifi setup in AP mode");
-        return false;
-    }
-    else
-    {
-        return connectToWifiStation(false);
-    }
-}
-
-bool reconnectWifiWithNewCredentials()
-{
-    logger.log("Applying new WiFi credentials...");
-
-    // Clean up any existing connections first
-    cleanupWifiConnections();
-
-    // Check if we're switching to AP mode
-    if (settingsManager.isAPMode())
-    {
-        logger.log("Switching to AP mode");
-        startAPMode();
-        return false;
-    }
-
-    // We're switching to or staying in station mode
-    logger.log("Connecting to WiFi station mode with new credentials...");
-    return connectToWifiStation(true);
-}
-
-void checkWifiConnection()
-{
-    logger.log("Checking WiFi connection");
-
-    // Skip check if already in AP mode
-    if (settingsManager.isAPMode())
-    {
-        logger.log("Skipping WiFi check in AP mode");
-        return;
-    }
-
-    // Check if WiFi is connected
-    if (WiFi.status() != WL_CONNECTED)
-    {
-        if (!isReconnecting)
-        {
-            logger.log("WiFi disconnected, attempting to reconnect...");
-            WiFi.begin(settingsManager.getSSID().c_str(), settingsManager.getPassword().c_str());
-            wifiReconnectStart = millis();
-            isReconnecting     = true;
-        }
-        else
-        {
-            // Check if reconnection timeout has elapsed
-            if (millis() - wifiReconnectStart >= WIFI_RECONNECT_TIMEOUT)
-            {
-                failWifi();
-            }
-        }
-    }
-    else
-    {
-        // WiFi is connected, reset reconnection state
-        if (isReconnecting)
-        {
-            logger.log("WiFi reconnected successfully");
-            isReconnecting = false;
-
-            // Mark that WiFi has successfully connected at least once
-            if (!settingsManager.getHasConnected())
-            {
-                settingsManager.setHasConnected(true);
-                settingsManager.save();
-            }
-        }
-    }
-}
 
 void setup()
 {
@@ -269,200 +66,38 @@ void setup()
     logger.log("Settings Manager Loaded");
     String settingsJson = settingsManager.toJson(false);
     logger.logf("Settings snapshot: %s", settingsJson.c_str());
+
+    systemServices.begin();
 }
 
-void syncTimeWithNTP(unsigned long currentTime)
-{
-    struct tm timeinfo;
-    lastNTPSyncAttempt = currentTime;
-    if (getLocalTime(&timeinfo))
-    {
-        logger.log("NTP time synchronization successful");
-    }
-    else
-    {
-        logger.log("NTP time synchronization failed");
-    }
-}
-
-unsigned long getTime()
-{
-    time_t now;
-    time(&now);
-    return now;
-}
-
-void onImprovErrorCallback(improv::Error err)
-{
-    logger.logf("Improv error: %d", err);
-}
-
-std::vector<std::string> getLocalUrl()
-{
-    return {// URL where user can finish onboarding or use device
-            // Recommended to use website hosted by device
-            String("http://" + WiFi.localIP().toString()).c_str()};
-}
-
-void getAvailableWifiNetworks()
-{
-    int networkNum = WiFi.scanNetworks();
-
-    for (int id = 0; id < networkNum; ++id)
-    {
-        std::vector<uint8_t> data =
-            improv::build_rpc_response(improv::GET_WIFI_NETWORKS,
-                                       {WiFi.SSID(id), String(WiFi.RSSI(id)),
-                                        (WiFi.encryptionType(id) == WIFI_AUTH_OPEN ? "NO" : "YES")},
-                                       false);
-        improv::send_response(data);
-        delay(1);
-    }
-    // final response
-    std::vector<uint8_t> data =
-        improv::build_rpc_response(improv::GET_WIFI_NETWORKS, std::vector<std::string>{}, false);
-    improv::send_response(data);
-}
-
-bool onImprovCommandCallback(improv::ImprovCommand cmd)
-{
-    switch (cmd.command)
-    {
-        case improv::Command::GET_CURRENT_STATE:
-        {
-            if ((WiFi.status() == WL_CONNECTED))
-            {
-                improv::set_state(improv::State::STATE_PROVISIONED);
-                std::vector<uint8_t> data =
-                    improv::build_rpc_response(improv::GET_CURRENT_STATE, getLocalUrl(), false);
-                improv::send_response(data);
-            }
-            else
-            {
-                improv::set_state(improv::State::STATE_AUTHORIZED);
-            }
-
-            break;
-        }
-
-        case improv::Command::WIFI_SETTINGS:
-        {
-            if (cmd.ssid.length() == 0)
-            {
-                improv::set_error(improv::Error::ERROR_INVALID_RPC);
-                break;
-            }
-
-            improv::set_state(improv::STATE_PROVISIONING);
-
-            settingsManager.setSSID(cmd.ssid.c_str());
-            settingsManager.setPassword(cmd.password.c_str());
-            settingsManager.setAPMode(false);
-            settingsManager.save(true);  // skip wifi check, we're about to try connecting
-
-            if (reconnectWifiWithNewCredentials())  // connectWifi(cmd.ssid, cmd.password)
-            {
-                improv::set_state(improv::STATE_PROVISIONED);
-                std::vector<uint8_t> data =
-                    improv::build_rpc_response(improv::WIFI_SETTINGS, getLocalUrl(), false);
-                improv::send_response(data);
-            }
-            else
-            {
-                improv::set_state(improv::STATE_STOPPED);
-                improv::set_error(improv::Error::ERROR_UNABLE_TO_CONNECT);
-            }
-
-            break;
-        }
-
-        case improv::Command::GET_DEVICE_INFO:
-        {
-            std::vector<std::string> infos = {// Firmware name
-                                              "CC_SFS",
-                                              // Firmware version
-                                              firmwareVersion,
-                                              // Hardware chip/variant
-                                              chipFamily,
-                                              // Device name
-                                              "CC_SFS"};
-            std::vector<uint8_t>     data =
-                improv::build_rpc_response(improv::GET_DEVICE_INFO, infos, false);
-            improv::send_response(data);
-            break;
-        }
-
-        case improv::Command::GET_WIFI_NETWORKS:
-        {
-            getAvailableWifiNetworks();
-            break;
-        }
-
-        default:
-        {
-            improv::set_error(improv::ERROR_UNKNOWN_RPC);
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool handleImprovWifi()
-{
-    if (Serial.available() > 0)
-    {
-        uint8_t b = Serial.read();
-
-        if (parse_improv_serial_byte(x_position, b, x_buffer, onImprovCommandCallback,
-                                     onImprovErrorCallback))
-        {
-            x_buffer[x_position++] = b;
-        }
-        else
-        {
-            x_position = 0;
-        }
-        return true;
-    }
-    return false;
-}
-
+/**
+ * @brief Main program loop that drives periodic system tasks and conditional subsystem startup.
+ *
+ * Runs recurring service processing, defers further work while setup is required, starts the web
+ * server once a Wi‑Fi setup attempt has occurred, initializes and processes the Elegoo subsystem
+ * when Wi‑Fi is ready and an Elegoo IP is configured, and services the web server if started.
+ *
+ * @note The loop yields to the FreeRTOS scheduler with a 1 ms delay to reduce CPU usage while
+ *       preserving sensor and polling timing requirements.
+ */
 void loop()
 {
-    // handling immprovWifi should be the first thing we do
-    if (handleImprovWifi())
+    systemServices.loop();
+
+    if (systemServices.shouldYieldForSetup())
     {
-        // if we handled serial data, don't return so we don't bother with the rest of the setup
         return;
     }
-    unsigned long currentTime     = millis();
-    bool          isWifiConnected = !settingsManager.isAPMode() && WiFi.status() == WL_CONNECTED;
 
-    if (!isWifiSetup)
-    {
-        isWifiSetup = wifiSetup();
-        isWifiSetup = true;
-        logger.log("Wifi setup complete");
-        return;  //
-    }
-    if (!isWebServerSetup)
+    if (!isWebServerSetup && systemServices.hasAttemptedWifiSetup())
     {
         webServer.begin();
         isWebServerSetup = true;
         logger.log("Webserver setup complete");
-        return;  //
+        return;
     }
 
-    // Check if WiFi reconnection is requested
-
-    if (settingsManager.requestWifiReconnect)
-    {
-        settingsManager.requestWifiReconnect = false;
-        reconnectWifiWithNewCredentials();
-    }
-
-    if (isWifiConnected)
+    if (systemServices.wifiReady())
     {
         if (!isElegooSetup && settingsManager.getElegooIP().length() > 0)
         {
@@ -470,27 +105,23 @@ void loop()
             logger.log("Elegoo setup complete");
             isElegooSetup = true;
         }
+
         if (isElegooSetup)
         {
             elegooCC.loop();
         }
-
-        if (!isNtpSetup)
-        {
-            configTime(0, 0, ntpServer);
-            syncTimeWithNTP(currentTime);
-            logger.log("NTP setup complete");
-            isNtpSetup = true;
-        }
-        else if (currentTime - lastNTPSyncAttempt >= NTP_SYNC_INTERVAL)
-        {
-            syncTimeWithNTP(currentTime);
-        }
     }
-    else if (currentTime - lastWifiCheck >= WIFI_CHECK_INTERVAL)
+
+    if (isWebServerSetup)
     {
-        checkWifiConnection();
+        webServer.loop();
     }
 
-    webServer.loop();
+    // Strategic 1ms delay to reduce CPU usage while maintaining detection accuracy.
+    // This yields to the FreeRTOS scheduler, reducing CPU from 100% spin to ~10-20%.
+    // 1ms is well below all critical timing thresholds:
+    // - Motion sensor: ~60ms between pulses at typical speeds
+    // - Jam detector: 250ms update interval
+    // - Printer polling: 250ms status interval
+    vTaskDelay(pdMS_TO_TICKS(1));
 }

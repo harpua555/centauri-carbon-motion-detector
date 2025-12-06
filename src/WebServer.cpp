@@ -7,6 +7,24 @@
 
 #define SPIFFS LittleFS
 
+namespace
+{
+constexpr const char kRouteGetSettings[]      = "/get_settings";
+constexpr const char kRouteUpdateSettings[]   = "/update_settings";
+constexpr const char kRouteTestPause[]        = "/test_pause";
+constexpr const char kRouteTestResume[]       = "/test_resume";
+constexpr const char kRouteDiscoverPrinter[]  = "/discover_printer";
+constexpr const char kRouteSensorStatus[]     = "/sensor_status";
+constexpr const char kRouteLogsText[]         = "/api/logs_text";
+constexpr const char kRouteLogsLive[]         = "/api/logs_live";
+constexpr const char kRouteVersion[]          = "/version";
+constexpr const char kRouteStatusEvents[]     = "/status_events";
+constexpr const char kRouteLiteRoot[]         = "/lite";
+constexpr const char kRouteFavicon[]          = "/favicon.ico";
+constexpr const char kRouteRoot[]             = "/";
+constexpr const char kLiteIndexPath[]         = "/lite/index.htm";
+}  // namespace
+
 // External reference to firmware version from main.cpp
 extern const char *firmwareVersion;
 extern const char *chipFamily;
@@ -51,14 +69,26 @@ String getFilesystemThumbprint() {
     return thumbprint.length() > 0 ? thumbprint : "unknown";
 }
 
-WebServer::WebServer(int port) : server(port), statusEvents("/status_events") {}
+// Read build version from file
+String getBuildVersion() {
+    File file = SPIFFS.open("/build_version.txt", "r");
+    if (!file) {
+        return "0.0.0";
+    }
+    String version = file.readStringUntil('\n');
+    file.close();
+    version.trim();
+    return version.length() > 0 ? version : "0.0.0";
+}
+
+WebServer::WebServer(int port) : server(port), statusEvents(kRouteStatusEvents) {}
 
 void WebServer::begin()
 {
     server.begin();
 
     // Get settings endpoint
-    server.on("/get_settings", HTTP_GET,
+    server.on(kRouteGetSettings, HTTP_GET,
               [](AsyncWebServerRequest *request)
               {
                   String jsonResponse = settingsManager.toJson(false);
@@ -66,7 +96,7 @@ void WebServer::begin()
               });
 
     server.addHandler(new AsyncCallbackJsonWebHandler(
-        "/update_settings",
+        kRouteUpdateSettings,
         [this](AsyncWebServerRequest *request, JsonVariant &json)
         {
             JsonObject jsonObj = json.as<JsonObject>();
@@ -80,38 +110,20 @@ void WebServer::begin()
             settingsManager.setPauseOnRunout(jsonObj["pause_on_runout"].as<bool>());
             settingsManager.setEnabled(jsonObj["enabled"].as<bool>());
             settingsManager.setStartPrintTimeout(jsonObj["start_print_timeout"].as<int>());
-            // Handle both new and deprecated settings names for backwards compatibility
             if (jsonObj.containsKey("detection_length_mm"))
             {
                 settingsManager.setDetectionLengthMM(jsonObj["detection_length_mm"].as<float>());
-            }
-            else if (jsonObj.containsKey("expected_deficit_mm"))
-            {
-                // Deprecated: redirect to new setting
-                settingsManager.setDetectionLengthMM(jsonObj["expected_deficit_mm"].as<float>());
             }
             if (jsonObj.containsKey("detection_grace_period_ms"))
             {
                 settingsManager.setDetectionGracePeriodMs(
                     jsonObj["detection_grace_period_ms"].as<int>());
             }
-            if (jsonObj.containsKey("tracking_mode"))
-            {
-                settingsManager.setTrackingMode(jsonObj["tracking_mode"].as<int>());
-            }
-            if (jsonObj.containsKey("tracking_window_ms"))
-            {
-                settingsManager.setTrackingWindowMs(jsonObj["tracking_window_ms"].as<int>());
-            }
-            if (jsonObj.containsKey("tracking_ewma_alpha"))
-            {
-                settingsManager.setTrackingEwmaAlpha(
-                    jsonObj["tracking_ewma_alpha"].as<float>());
-            }
+            // detection_min_start_mm and purge_filament_mm removed - no longer used
             if (jsonObj.containsKey("detection_ratio_threshold"))
             {
                 settingsManager.setDetectionRatioThreshold(
-                    jsonObj["detection_ratio_threshold"].as<float>());
+                    jsonObj["detection_ratio_threshold"].as<int>());
             }
             if (jsonObj.containsKey("detection_hard_jam_mm"))
             {
@@ -128,7 +140,6 @@ void WebServer::begin()
                 settingsManager.setDetectionHardJamTimeMs(
                     jsonObj["detection_hard_jam_time_ms"].as<int>());
             }
-            // expected_flow_window_ms is deprecated and ignored (no longer used)
             if (jsonObj.containsKey("sdcp_loss_behavior"))
             {
                 settingsManager.setSdcpLossBehavior(jsonObj["sdcp_loss_behavior"].as<int>());
@@ -143,24 +154,15 @@ void WebServer::begin()
                 settingsManager.setUiRefreshIntervalMs(
                     jsonObj["ui_refresh_interval_ms"].as<int>());
             }
-            // Deprecated settings - accepted but ignored for backwards compatibility
-            // zero_deficit_logging - removed (use verbose_logging)
-            // use_total_extrusion_deficit - removed (always use total mode)
-            // total_vs_delta_logging - removed (only one mode now)
-            // packet_flow_logging - removed (use verbose_logging)
-            // use_total_extrusion_backlog - removed (always enabled)
-            if (jsonObj.containsKey("dev_mode"))
+            // Pause command suppression
+            if (jsonObj.containsKey("suppress_pause_commands"))
             {
-                settingsManager.setDevMode(jsonObj["dev_mode"].as<bool>());
+                settingsManager.setSuppressPauseCommands(jsonObj["suppress_pause_commands"].as<bool>());
             }
-            if (jsonObj.containsKey("verbose_logging"))
+            // Unified log level
+            if (jsonObj.containsKey("log_level"))
             {
-                settingsManager.setVerboseLogging(jsonObj["verbose_logging"].as<bool>());
-            }
-            if (jsonObj.containsKey("flow_summary_logging"))
-            {
-                settingsManager.setFlowSummaryLogging(
-                    jsonObj["flow_summary_logging"].as<bool>());
+                settingsManager.setLogLevel(jsonObj["log_level"].as<int>());
             }
             if (jsonObj.containsKey("movement_mm_per_pulse"))
             {
@@ -172,12 +174,40 @@ void WebServer::begin()
                 settingsManager.setAutoCalibrateSensor(
                     jsonObj["auto_calibrate_sensor"].as<bool>());
             }
-            settingsManager.save();
+            if (jsonObj.containsKey("pulse_reduction_percent"))
+            {
+                settingsManager.setPulseReductionPercent(
+                    jsonObj["pulse_reduction_percent"].as<float>());
+            }
+            if (jsonObj.containsKey("test_recording_mode"))
+            {
+                settingsManager.setTestRecordingMode(
+                    jsonObj["test_recording_mode"].as<bool>());
+            }
+            bool saved = settingsManager.save();
+            if (saved) {
+                // Reload settings to apply changes immediately
+                settingsManager.load();
+            }
             jsonObj.clear();
-            request->send(200, "text/plain", "ok");
+            request->send(saved ? 200 : 500, "text/plain", saved ? "ok" : "save failed");
         }));
 
-    server.on("/discover_printer", HTTP_GET,
+    server.on(kRouteTestPause, HTTP_POST,
+              [](AsyncWebServerRequest *request)
+              {
+                  elegooCC.pausePrint();
+                  request->send(200, "text/plain", "ok");
+              });
+
+    server.on(kRouteTestResume, HTTP_POST,
+              [](AsyncWebServerRequest *request)
+              {
+                  elegooCC.continuePrint();
+                  request->send(200, "text/plain", "ok");
+              });
+
+    server.on(kRouteDiscoverPrinter, HTTP_GET,
               [](AsyncWebServerRequest *request)
               {
                   String ip;
@@ -211,16 +241,35 @@ void WebServer::begin()
     server.addHandler(&statusEvents);
 
     // Sensor status endpoint
-    server.on("/sensor_status", HTTP_GET,
+    server.on(kRouteSensorStatus, HTTP_GET,
               [this](AsyncWebServerRequest *request)
               {
                   printer_info_t elegooStatus = elegooCC.getCurrentInformation();
 
-                  DynamicJsonDocument jsonDoc(768);
+                  // JSON allocation: 576 bytes heap (was 768 bytes)
+                  // Measured actual: ~480 bytes (83% utilization, 17% margin)
+                  // Last measured: 2025-11-26
+                  // See: .claude/hardcoded-allocations.md for maintenance notes
+                  DynamicJsonDocument jsonDoc(576);
                   buildStatusJson(jsonDoc, elegooStatus);
 
                   String jsonResponse;
+                  jsonResponse.reserve(576);  // Pre-allocate to prevent fragmentation
                   serializeJson(jsonDoc, jsonResponse);
+
+                  // Pin Values level: Check if approaching allocation limit
+                  if (settingsManager.getLogLevel() >= LOG_PIN_VALUES)
+                  {
+                      size_t actualSize = measureJson(jsonDoc);
+                      static bool logged = false;
+                      if (!logged && actualSize > 490)  // >85% of 576 bytes
+                      {
+                          logger.logf(LOG_PIN_VALUES, "WebServer sensor_status JSON size: %zu / 576 bytes (%.1f%%)",
+                                     actualSize, (actualSize * 100.0f / 576.0f));
+                          logged = true;  // Only log once per session
+                      }
+                  }
+
                   request->send(200, "application/json", jsonResponse);
               });
 
@@ -234,7 +283,7 @@ void WebServer::begin()
     //           });
 
     // Raw text logs endpoint (full logs for download)
-    server.on("/api/logs_text", HTTP_GET,
+    server.on(kRouteLogsText, HTTP_GET,
               [](AsyncWebServerRequest *request)
               {
                   String textResponse = logger.getLogsAsText();
@@ -245,7 +294,7 @@ void WebServer::begin()
               });
 
     // Live logs endpoint (last 100 entries for UI display)
-    server.on("/api/logs_live", HTTP_GET,
+    server.on(kRouteLogsLive, HTTP_GET,
               [](AsyncWebServerRequest *request)
               {
                   String textResponse = logger.getLogsAsText(100);  // Only last 100 entries
@@ -253,16 +302,26 @@ void WebServer::begin()
               });
 
     // Version endpoint
-    server.on("/version", HTTP_GET,
+    server.on(kRouteVersion, HTTP_GET,
               [](AsyncWebServerRequest *request)
               {
+                  // Use BUILD_DATE and BUILD_TIME if set by build script, otherwise fall back to __DATE__ and __TIME__
+                  #ifdef BUILD_DATE
+                      const char* buildDate = BUILD_DATE;
+                      const char* buildTime = BUILD_TIME;
+                  #else
+                      const char* buildDate = __DATE__;
+                      const char* buildTime = __TIME__;
+                  #endif
+
                   DynamicJsonDocument jsonDoc(512);
                   jsonDoc["firmware_version"] = firmwareVersion;
                   jsonDoc["chip_family"]      = chipFamily;
-                  jsonDoc["build_date"]       = __DATE__;
-                  jsonDoc["build_time"]       = __TIME__;
-                  jsonDoc["firmware_thumbprint"] = getBuildThumbprint(__DATE__, __TIME__);
+                  jsonDoc["build_date"]       = buildDate;
+                  jsonDoc["build_time"]       = buildTime;
+                  jsonDoc["firmware_thumbprint"] = getBuildThumbprint(buildDate, buildTime);
                   jsonDoc["filesystem_thumbprint"] = getFilesystemThumbprint();
+                  jsonDoc["build_version"] = getBuildVersion();
 
                   String jsonResponse;
                   serializeJson(jsonDoc, jsonResponse);
@@ -271,10 +330,13 @@ void WebServer::begin()
 
     // Serve lightweight UI from /lite (if available)
     // Keep explicit /lite path for backwards compatibility
-    server.serveStatic("/lite", SPIFFS, "/lite/").setDefaultFile("index.htm");
+    server.serveStatic(kRouteLiteRoot, SPIFFS, "/lite/").setDefaultFile("index.htm");
+
+    // Serve favicon explicitly because the root static handler only matches "/".
+    server.serveStatic(kRouteFavicon, SPIFFS, "/lite/favicon.ico");
 
     // Always serve the lightweight UI at the root as well.
-    server.serveStatic("/", SPIFFS, "/lite/").setDefaultFile("index.htm");
+    server.serveStatic(kRouteRoot, SPIFFS, "/lite/").setDefaultFile("index.htm");
 
     // SPA-style routing: for any unknown GET that isn't an API or asset,
     // serve index.htm so that the frontend router can handle the path.
@@ -283,7 +345,7 @@ void WebServer::begin()
             !request->url().startsWith("/api/") &&
             !request->url().startsWith("/assets/"))
         {
-            request->send(SPIFFS, "/lite/index.htm", "text/html");
+            request->send(SPIFFS, kLiteIndexPath, "text/html");
         }
         else
         {
@@ -308,10 +370,8 @@ void WebServer::buildStatusJson(DynamicJsonDocument &jsonDoc, const printer_info
     jsonDoc["stopped"]        = elegooStatus.filamentStopped;
     jsonDoc["filamentRunout"] = elegooStatus.filamentRunout;
 
-    jsonDoc["mac"]       = WiFi.macAddress();
-    jsonDoc["ip"]        = WiFi.localIP().toString();
-    jsonDoc["rssi"]      = WiFi.RSSI();
-    jsonDoc["free_heap"] = ESP.getFreeHeap();
+    jsonDoc["mac"] = WiFi.macAddress();
+    jsonDoc["ip"]  = WiFi.localIP().toString();
 
     JsonObject elegoo = jsonDoc["elegoo"].to<JsonObject>();
     elegoo["mainboardID"]          = elegooStatus.mainboardID;
@@ -332,20 +392,44 @@ void WebServer::buildStatusJson(DynamicJsonDocument &jsonDoc, const printer_info
     elegoo["currentDeficitMm"]     = elegooStatus.currentDeficitMm;
     elegoo["deficitThresholdMm"]   = elegooStatus.deficitThresholdMm;
     elegoo["deficitRatio"]         = elegooStatus.deficitRatio;
+    elegoo["passRatio"]            = elegooStatus.passRatio;
+    elegoo["ratioThreshold"]       = settingsManager.getDetectionRatioThreshold();
     elegoo["hardJamPercent"]       = elegooStatus.hardJamPercent;
     elegoo["softJamPercent"]       = elegooStatus.softJamPercent;
     elegoo["movementPulses"]       = (uint32_t) elegooStatus.movementPulseCount;
     elegoo["uiRefreshIntervalMs"]  = settingsManager.getUiRefreshIntervalMs();
     elegoo["flowTelemetryStaleMs"] = settingsManager.getFlowTelemetryStaleMs();
+    elegoo["graceActive"]          = elegooStatus.graceActive;
+    elegoo["expectedRateMmPerSec"] = elegooStatus.expectedRateMmPerSec;
+    elegoo["actualRateMmPerSec"]   = elegooStatus.actualRateMmPerSec;
 }
 
 void WebServer::broadcastStatusUpdate()
 {
     printer_info_t elegooStatus = elegooCC.getCurrentInformation();
-    DynamicJsonDocument jsonDoc(768);
+    // JSON allocation: 576 bytes heap (was 768 bytes)
+    // Measured actual: ~480 bytes (83% utilization, 17% margin)
+    // Last measured: 2025-11-26
+    // See: .claude/hardcoded-allocations.md for maintenance notes
+    DynamicJsonDocument jsonDoc(576);
     buildStatusJson(jsonDoc, elegooStatus);
     String payload;
+    payload.reserve(576);  // Pre-allocate to prevent fragmentation
     serializeJson(jsonDoc, payload);
+
+    // Pin Values level: Check if approaching allocation limit
+    if (settingsManager.getLogLevel() >= LOG_PIN_VALUES)
+    {
+        size_t actualSize = measureJson(jsonDoc);
+        static bool logged = false;
+        if (!logged && actualSize > 490)  // >85% of 576 bytes
+        {
+            logger.logf(LOG_PIN_VALUES, "WebServer broadcastStatusUpdate JSON size: %zu / 576 bytes (%.1f%%)",
+                       actualSize, (actualSize * 100.0f / 576.0f));
+            logged = true;  // Only log once per session
+        }
+    }
+
     bool idleState = (elegooStatus.printStatus == 0 || elegooStatus.printStatus == 9);
     if (idleState)
     {

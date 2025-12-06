@@ -9,10 +9,10 @@ Usage:
     python tools/build_local.py [OPTIONS]
 
 All options are passed through to build_and_flash.py:
-    --env ENV            PlatformIO environment (e.g., esp32-s3-dev, seeed_xiao_esp32c3-dev)
-    --skip-npm-install   Skip npm install step
+    --env ENV            PlatformIO environment (e.g., esp32s3, seeed_esp32c3)
     --local              Build only (don't upload to hardware)
     --ignore-secrets     Don't merge secrets files
+    --build-mode MODE    'nofs' = firmware only (no merge), 'nobin' = filesystem only (no merge), default = full build with merge
 """
 
 import os

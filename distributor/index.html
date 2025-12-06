@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centauri Firmware Distributor</title>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script type="module" src="./app.js" defer></script>
+</head>
+
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="branding">
+                <div class="logo-container">
+                    <span class="logo-text">CC</span>
+                </div>
+                <div class="title-container">
+                    <h1>OC-Filament Board Creation</h1>
+                    <p class="powered-by">
+                        <span class="status-dot"></span>
+                        Check Github for source and self-hosting options.
+                    </p>
+                </div>
+            </div>
+            <div class="header-meta">
+                <p class="meta-label">Web Serial Ready</p>
+                <p class="meta-value">Chrome · Edge · Opera</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero card">
+            <div class="card-header">
+                <div>
+                    <p class="eyebrow">Releases</p>
+                    <h2>Flash the latest build to your ESP32</h2>
+                </div>
+                <span class="card-header-icon"></span>
+            </div>
+            <p class="hero-copy">
+                Connect your board via USB, select the correct board below and then flash.
+                Wifi setup will need to be completed following every flash.
+            </p>
+            <div class="hero-grid">
+                <div>
+                    <p class="metric-label">Current release</p>
+                    <p class="metric-value" id="activeFirmwareLabel">Please select a board</p>
+                </div>
+                <div>
+                    <p class="metric-label">Published</p>
+                    <p class="metric-value" id="activeFirmwareDate">—</p>
+                </div>
+                <div>
+                    <p class="metric-label">Boards validated</p>
+                    <p class="metric-value" id="boardCount">—</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="layout-grid">
+            <article class="card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">Board Selection</p>
+                        <h3>Choose your hardware</h3>
+                    </div>
+                    <span class="card-header-icon"></span>
+                </div>
+                <div class="field-group">
+                    <label for="boardSelect">Target board</label>
+                    <div class="select-wrapper">
+                        <select id="boardSelect" aria-label="Board type"></select>
+                        <span class="select-caret">⌄</span>
+                    </div>
+                </div>
+                <div class="board-summary">
+                    <div>
+                        <p class="summary-label">Firmware status</p>
+                        <p class="status-chip" id="boardStatus">—</p>
+                    </div>
+                    <div>
+                        <p class="summary-label">Current version</p>
+                        <p class="summary-value" id="boardVersion">—</p>
+                    </div>
+                    <div>
+                        <p class="summary-label">Released</p>
+                        <p class="summary-value" id="boardRelease">—</p>
+                    </div>
+                </div>
+                <div class="board-notes">
+                    <p class="summary-label">Release notes</p>
+                    <ul class="notes-list" id="boardNotes"></ul>
+                </div>
+            </article>
+
+            <article class="card wifi-card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">Wi-Fi override</p>
+                        <h3>Patch SSID &amp; password</h3>
+                    </div>
+                    <span class="card-header-icon"></span>
+                </div>
+                <p class="wifi-helper modified">
+                    This step is optional. You can provide your Wifi SSID and password in this form to skip AP
+                    setup. This uses a script to patch the released binary file in place on the fly - the form entry and
+                    patched binary are local to your browser - they are not transmitted outside of your local
+                    environment. If you are not comfortable with this, simply do not use this feature.
+                </p>
+                <div class="wifi-controls">
+                    <button class="primary-btn" id="wifiAcceptBtn" type="button">
+                        Accept and provide credentials
+                    </button>
+                    <button class="ghost-btn hidden" id="wifiResetBtn" type="button">
+                        Reset Patch
+                    </button>
+                </div>
+                <p class="wifi-status muted" id="wifiPatchStatus">
+                    Click "Accept and provide credentials" to begin the optional patch.
+                </p>
+            </article>
+
+            <article class="card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">Deploy</p>
+                        <h3>Flash via Web Serial</h3>
+                    </div>
+                    <span class="card-header-icon"></span>
+                </div>
+                <div class="instructions">
+                    <ol>
+                        <li>Plug your ESP32 into this machine with a data-capable USB cable.</li>
+                        <li>Use Chrome, Edge, or any browser with Web Serial enabled.</li>
+                        <li>Click <strong>Flash firmware</strong>, pick the serial port, and confirm.</li>
+                    </ol>
+                </div>
+                <button class="primary-btn" type="button" id="flashTrigger">
+                    <span>Flash firmware</span>
+                </button>
+                <div id="webSerialWarning" class="warning-text" style="display: none;">
+                    Web Serial is not available in this browser. Try Chrome or Edge on desktop.
+                </div>
+                <div class="ota-block">
+                    <div class="ota-header">
+                        <h4>Update OTA</h4>
+                        <p>Download files, unzip, and open the readme.</p>
+                    </div>
+                    <div class="instructions compact">
+                        <ol>
+                            <li>Download the OTA package.</li>
+                            <li>Unzip and read the included instructions.</li>
+                            <li>Apply files per the readme.</li>
+                        </ol>
+                    </div>
+                    <div class="download-actions">
+                        <button class="ghost-btn" id="downloadOtaBtn" disabled>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7,10 12,15 17,10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Download OTA Files
+                        </button>
+                    </div>
+                </div>
+              </article>
+
+            <article class="card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">Release Notes</p>
+                        <h3 id="releaseNotesTitle">Notes</h3>
+                    </div>
+                    <span class="card-header-icon"></span>
+                </div>
+                <ul class="notes-list" id="notesList"></ul>
+            </article>
+
+            <article class="card log-card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">Flash Output</p>
+                        <h3>Live console</h3>
+                    </div>
+                    <div class="log-actions">
+                        <button type="button" class="ghost-btn" id="copyLogBtn">Copy log</button>
+                        <button type="button" class="ghost-btn" id="clearLogBtn">Clear</button>
+                    </div>
+                </div>
+                <div class="log-stream" id="logStream">
+                    <p class="muted">Click “Flash firmware” to begin capturing installer output.</p>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <div id="wifiPatchDialog" class="wifi-dialog hidden">
+        <div class="wifi-dialog-backdrop" data-dialog-close></div>
+        <div class="wifi-dialog-panel">
+            <button class="wifi-dialog-close" data-dialog-close type="button">×</button>
+            <h3>Provide Wi-Fi credentials</h3>
+            <p class="wifi-dialog-note">
+                This step is optional. You can provide your Wifi SSID and password in this form to skip AP setup. This
+                uses a script to patch the released binary file in place on the fly – the form entry and patched binary
+                remain local to your browser and are never transmitted outside your environment.
+            </p>
+            <form id="wifiPatchForm" class="wifi-form" autocomplete="off">
+                <div class="field-group">
+                    <label for="wifiSsid">Wi-Fi SSID</label>
+                    <input id="wifiSsid" name="ssid" type="text" maxlength="20" value="your_ssid" required>
+                </div>
+                <div class="field-group">
+                    <label for="wifiPass">Wi-Fi password</label>
+                    <input id="wifiPass" name="passwd" type="password" maxlength="20" value="your_pass" required>
+                </div>
+                <div class="wifi-actions">
+                    <button class="primary-btn" type="submit">Patch firmware</button>
+                </div>
+            </form>
+            <p class="wifi-dialog-disclaimer">
+                DISCLAIMER: Use at your own risk, I cannot guarantee credential security. Check the Github repo for the
+                source files of this distributor.
+            </p>
+        </div>
+    </div>
+
+    <div id="portSelectorDialog" class="port-selector-dialog hidden">
+        <div class="port-selector-backdrop" data-dialog-close></div>
+        <div class="port-selector-panel">
+            <button class="port-selector-close" data-dialog-close type="button">×</button>
+            <h3>Select Serial Port</h3>
+            <p class="port-selector-note">
+                Choose a previously connected device or authorize a new one.
+            </p>
+            <div class="port-list" id="portList">
+                <p class="muted">No previously authorized ports found.</p>
+            </div>
+            <button class="ghost-btn port-authorize-btn" id="authorizeNewPort" type="button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Authorize new device...
+            </button>
+        </div>
+    </div>
+
+    <div id="warningDialog" class="wifi-dialog hidden">
+        <div class="wifi-dialog-backdrop" data-dialog-close></div>
+        <div class="wifi-dialog-panel warning-panel">
+            <button class="wifi-dialog-close" data-dialog-close type="button">×</button>
+            <div class="warning-icon-large">!</div>
+            <h3>Ready to Flash?</h3>
+            <p class="wifi-dialog-note">
+                This will overwrite the current firmware on your device.
+            </p>
+            
+            <label class="checkbox-wrapper">
+                <input type="checkbox" id="eraseDeviceCheckbox" checked>
+                <span class="checkbox-box"></span>
+                <span class="checkbox-label">Erase device first (Recommended)</span>
+            </label>
+            <p class="checkbox-help">
+                Performs a full chip erase before flashing. This ensures a clean installation but takes longer.
+            </p>
+
+            <div class="start-flash-actions">
+                <button class="ghost-btn" data-dialog-close type="button">Cancel</button>
+                <button class="primary-btn danger-btn" id="confirmFlashBtn" type="button">
+                    I understand, Install Firmware
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="flashOverlay" class="flash-overlay hidden">
+        <div class="flash-overlay-backdrop"></div>
+        <div class="flash-overlay-panel">
+            <div class="flash-overlay-header">
+                <span>Installer Console</span>
+                <button class="flash-overlay-close" id="flashOverlayClose" type="button">×</button>
+            </div>
+            <div class="flash-progress-container">
+                <div class="flash-progress-header">
+                    <span class="flash-stage" id="flashStage">Ready</span>
+                    <span class="flash-percent" id="flashPercent">0%</span>
+                </div>
+                <div class="flash-progress-bar">
+                    <div class="flash-progress-fill" id="flashProgressFill"></div>
+                </div>
+            </div>
+            <div class="flash-log-stream" id="flashLogStream">
+                <p class="muted">Flash output will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container footer-content">
+            <p>Open Centauri Filament Distributor · v1</p>
+            <p>
+                Visit <a href="https://github.com/harpua555/centauri-carbon-motion-detector">Github</a> for source code.
+            </p>
+        </div>
+    </footer>
+</body>
+
+</html>

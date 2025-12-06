@@ -61,7 +61,7 @@ python tools/setup_local_env.py
 python tools/build_local.py
 
 # Target another board
-python tools/build_local.py --env seeed_xiao_esp32c3-dev
+python tools/build_local.py --env seeed_esp32c3
 ```
 
 ### Option C: Quick Start Scripts
