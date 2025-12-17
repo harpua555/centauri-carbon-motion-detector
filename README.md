@@ -1,2 +1,2 @@
 # Repository is now named 'OpenFilamentSensor'
-  visit "https://harpua555.github.io/OpenFilamentSensor/" if not redirected automatically
+  visit "https://github.com/harpua555/OpenFilamentSensor" if not redirected automatically
